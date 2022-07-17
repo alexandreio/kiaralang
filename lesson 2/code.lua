@@ -32,6 +32,7 @@ local function foldBin(lst)
     return tree
 end
 
+
 local Factor = lpeg.V"Factor"
 local Pow = lpeg.V"Pow"
 local Term = lpeg.V"Term"
@@ -40,7 +41,7 @@ local Comp = lpeg.V"Comp"
 
 local grammar = lpeg.P{"Comp",
     Factor = Numeral + OP * Exp * CP,
-    Pow = Space * lpeg.Ct(Factor * (opE * Factor) ^0) /foldBin,
+    Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^-1) /foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^0) / foldBin,
@@ -121,7 +122,7 @@ local function run (code, stack)
             stack[top -1] = stack[top -1] % stack[top]
             top = top - 1
         elseif code[pc] == "pow" then
-            stack[top -1] =  stack[top] ^stack[top -1]
+            stack[top -1] =  stack[top -1] ^ stack[top]
             top = top - 1
         elseif code[pc] == "sml" then
             stack[top -1] =  stack[top -1] < stack[top]
@@ -150,12 +151,12 @@ end
 local input = io.read()
 print("input:", input)
 local ast = parse(input)
-print("ast:")
-print(pt.pt(ast))
+-- print("ast:")
+-- print(pt.pt(ast))
 
 local code = compile(ast)
-print("\ncode:")
-print(pt.pt(code))
+-- print("\ncode:")
+-- print(pt.pt(code))
 
 local stack = {}
 run(code, stack)

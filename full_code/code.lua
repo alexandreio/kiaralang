@@ -77,7 +77,6 @@ local opC = (lpeg.C(BINCOMP)) * Space
 
 
 
-
 local function foldBin(lst)
     local tree = lst[1]
     
@@ -102,10 +101,10 @@ local grammar = lpeg.P{"Stats",
     Stats = Stat * (SC * Stats)^-1 / nodeSeq,
     Block = OB * Stats * SC^-1 * CB,
     Stat = Block 
-         + ID * Assgn * Exp / nodeAssgn 
-         + ret * Exp / nodeRet
-         + Print * Exp / nodePrint,
-    Factor = Numeral + OP * Exp * CP + Var,
+         + ID * Assgn * Comp / nodeAssgn 
+         + ret * Comp / nodeRet
+         + Print * Comp / nodePrint,
+    Factor = Numeral + OP * Comp * CP + Var,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^-1) /foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,

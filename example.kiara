@@ -1,4 +1,6 @@
 a = 10 + 4;
 b = a * a - 10;
 c = (a/b);
-return c;
+# print the result
+@ c;
+@ (1 > 0);

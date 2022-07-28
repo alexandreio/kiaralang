@@ -46,19 +46,11 @@ local Underscore = lpeg.P("_")
 local QuestionMark = lpeg.P("?")
 local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
+local comment = "#" * (lpeg.P(1) - "\n") ^ 0
 
 grammar.maxmatch = 0
 grammar.currentline = 0
-local Space = lpeg.S(" \t\n") ^ 0 *
-    lpeg.P(function(s, p)
-
-        if string.sub(s, p - 1, p - 1) == "\n" then
-            grammar.currentline = grammar.currentline + 1
-        end
-
-        grammar.maxmatch = math.max(grammar.maxmatch, p)
-        return true
-    end)
+local Space = lpeg.V "Space"
 
 
 local HexDigit = lpeg.R("09") ^ 0 * lpeg.R("AF", "af") ^ 0
@@ -107,7 +99,8 @@ local Stat = lpeg.V "Stat"
 local Stats = lpeg.V "Stats"
 local Block = lpeg.V "Block"
 
-local Grammar = lpeg.P { "Stats",
+local Grammar = lpeg.P { "Prog",
+    Prog = Space * Stats * -1,
     Stats = Stat * SC * Stats ^ -1 / nodeSeq,
     Block = OB * Stats * SC ^ -1 * CB,
     Stat = Block
@@ -119,10 +112,20 @@ local Grammar = lpeg.P { "Stats",
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^ 0) / foldBin,
+    Space = (lpeg.S(" \t\n") + comment) ^ 0 *
+        lpeg.P(function(s, p)
+
+            if string.sub(s, p - 1, p - 1) == "\n" then
+                grammar.currentline = grammar.currentline + 1
+            end
+
+            grammar.maxmatch = math.max(grammar.maxmatch, p)
+            return true
+        end)
 
 }
 
-grammar.Grammar = Space * Grammar * -1
+grammar.Grammar = Grammar
 
 
 return grammar

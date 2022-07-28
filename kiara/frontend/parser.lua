@@ -1,8 +1,8 @@
-local grammar = require"kiara.frontend.grammar"
+local grammar = require "kiara.frontend.grammar"
 
 local parser = {}
 
-function parser.parse (input)
+function parser.parse(input)
     return grammar.Grammar:match(input)
 end
 

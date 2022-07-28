@@ -1,3 +1,5 @@
+local pt = require("pt")
+
 local functions = {}
 
 local ops = {
@@ -18,11 +20,10 @@ local ops = {
 
 local function addCode(state, op)
     local code = state.code
-    code[#code+1] = op
+    code[#code + 1] = op
 end
 
-
-local function var2num (state, id)
+local function var2num(state, id)
     local num = state.vars[id]
     if not num then
         num = state.nvars + 1
@@ -33,7 +34,7 @@ local function var2num (state, id)
     return num
 end
 
-local function codeExp (state, ast)
+local function codeExp(state, ast)
     if ast.tag == "number" then
         addCode(state, "push")
         addCode(state, ast.val)
@@ -48,7 +49,7 @@ local function codeExp (state, ast)
     end
 end
 
-local function codeStat (state, ast)
+local function codeStat(state, ast)
     if ast.tag == "assgn" then
         codeExp(state, ast.exp)
         addCode(state, "store")
@@ -61,13 +62,13 @@ local function codeStat (state, ast)
         addCode(state, "ret")
     elseif ast.tag == "print" then
         codeExp(state, ast.exp)
-        addCode(state, "ret")
+        addCode(state, "print")
     else error("invalid tree")
     end
 end
 
-function functions.compile (ast)
-    local state = {code = {}, vars={}, nvars=0}
+function functions.compile(ast)
+    local state = { code = {}, vars = {}, nvars = 0 }
     codeStat(state, ast)
     addCode(state, "push")
     addCode(state, 0)

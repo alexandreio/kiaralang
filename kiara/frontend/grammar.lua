@@ -46,7 +46,20 @@ local Underscore = lpeg.P("_")
 local QuestionMark = lpeg.P("?")
 local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
-local Space = lpeg.S(" \t\n") ^ 0
+
+grammar.maxmatch = 0
+grammar.currentline = 0
+local Space = lpeg.S(" \t\n") ^ 0 *
+    lpeg.P(function(s, p)
+
+        if string.sub(s, p - 1, p - 1) == "\n" then
+            grammar.currentline = grammar.currentline + 1
+        end
+
+        grammar.maxmatch = math.max(grammar.maxmatch, p)
+        return true
+    end)
+
 
 local HexDigit = lpeg.R("09") ^ 0 * lpeg.R("AF", "af") ^ 0
 local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * HexDigit

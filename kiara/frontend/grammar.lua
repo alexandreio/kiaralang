@@ -40,6 +40,8 @@ local function foldBin(lst)
     return tree
 end
 
+
+
 local Alpha = lpeg.R("AZ", "az")
 local Digit = lpeg.R("09")
 local Underscore = lpeg.P("_")
@@ -52,6 +54,21 @@ grammar.maxmatch = 0
 grammar.currentline = 0
 local Space = lpeg.V "Space"
 
+local reserved = {"return", "if"}
+local excluded = lpeg.P(false)
+for i = 1, #reserved do
+    excluded = excluded +  reserved[i]
+end
+excluded = excluded * -AlphaNum
+
+local function T(t)
+    return t * Space
+end
+
+local function Rw(t)
+    assert(excluded:match(t))
+    return t * - AlphaNum * Space
+end
 
 local HexDigit = lpeg.R("09") ^ 0 * lpeg.R("AF", "af") ^ 0
 local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * HexDigit
@@ -62,10 +79,8 @@ local Number = lpeg.R("09") ^ 1
 local ScientificNumber = (FloatNumber + Number) * lpeg.S("eE") * lpeg.P("-") ^ -1 * Number
 local Numeral = (ScientificNumber + HexNumber + FloatNumber + Number) / nodeNum * Space
 
-local Assgn = "=" * Space
-local SC = ";" * Space
 
-local ID = lpeg.C(Alpha * AlphaNum ^ 0) * Space
+local ID = (lpeg.C(Alpha * AlphaNum ^ 0) -excluded) * Space
 local Var = ID / nodeVar
 
 local GEQ = lpeg.P(">=")
@@ -78,11 +93,6 @@ local BINCOMP = (GEQ + LEQ + LSS + GTR + EQL + NQL)
 
 
 local Print = "@" * Space
-local ret = "return" * Space
-local OP = "(" * Space
-local CP = ")" * Space
-local OB = "{" * Space
-local CB = "}" * Space
 
 local opE = lpeg.C(lpeg.S("^")) * Space
 local opM = lpeg.C(lpeg.S("*/%")) * Space
@@ -101,13 +111,13 @@ local Block = lpeg.V "Block"
 
 local Grammar = lpeg.P { "Prog",
     Prog = Space * Stats * -1,
-    Stats = Stat * SC * Stats ^ -1 / nodeSeq,
-    Block = OB * Stats * SC ^ -1 * CB,
+    Stats = Stat * T";" * Stats ^ -1 / nodeSeq,
+    Block = T"{" * Stats * T";" ^ -1 * T"}",
     Stat = Block
-        + ID * Assgn * Comp / nodeAssgn
-        + ret * Comp / nodeRet
+        + ID * T"=" * Comp / nodeAssgn
+        + Rw"return" * Comp / nodeRet
         + Print * Comp / nodePrint,
-    Factor = Numeral + OP * Comp * CP + Var,
+    Factor = Numeral + T"(" * Comp * T")" + Var,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,

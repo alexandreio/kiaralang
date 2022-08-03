@@ -46,7 +46,7 @@ local Underscore = lpeg.P("_")
 local QuestionMark = lpeg.P("?")
 local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
-local comment = "#" * (lpeg.P(1) - "\n") ^ 0
+local comment = '#{' * (lpeg.P(1) - '#}')^0 * '#}' + '#' * (lpeg.P(1) - '\n') ^ 0
 
 grammar.maxmatch = 0
 grammar.currentline = 0

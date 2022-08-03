@@ -1,6 +1,11 @@
 a = 10 + 4;
 b = a * a - 10;
 c = (a/b);
-# print the result
+
+#{
+   teste
+#}
+
+# another commet
 @ c;
 @ (1 > 0);

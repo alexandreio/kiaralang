@@ -1,11 +1,10 @@
-a = 10 + 4;
-b = a * a - 10;
-c = (a/b);
-
-#{
-   teste
+# hello
+#{ 
+    this
+    is
+    a
+    multiple
+    line
+    comment
 #}
-
-# another commet
-@ c;
 @ (1 > 0);

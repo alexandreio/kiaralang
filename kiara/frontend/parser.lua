@@ -3,11 +3,24 @@ local grammar = require "kiara.frontend.grammar"
 local parser = {}
 
 local function syntaxError(input, max)
+    local line = 1
+    local col = 1
+
+    for i = 1, max do
+        if input:sub(i,i) == "\n" then
+            line = line + 1
+            col = 1
+        else
+            col = col + 1
+        end
+    end
+
     print("syntax error:")
-    print("line: " .. grammar.currentline)
-    -- print("col: " .. (grammar.maxmatch / grammar.currentline) + 1)
-    print(grammar.maxmatch)
-    print(string.sub(input, max - 10, max - 1) .. " ^^^ " .. string.sub(input, max, max + 11))
+
+    print("line: " .. line)
+    print("col: " .. col)
+    print(string.sub(input, max - 5, max - 1) .. string.sub(input, max, max + 11))
+    print("\n" .. string.rep(" ", 4) .. "^^^" )
 end
 
 function parser.parse(input)

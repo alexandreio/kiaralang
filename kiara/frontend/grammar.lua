@@ -48,10 +48,6 @@ local Underscore = lpeg.P("_")
 local QuestionMark = lpeg.P("?")
 local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
-local comment = '#{' * (lpeg.P(1) - '#}')^0 * '#}' + '#' * (lpeg.P(1) - '\n') ^ 0
-
-grammar.maxmatch = 0
-grammar.currentline = 0
 local Space = lpeg.V "Space"
 
 local reserved = {"return", "if"}
@@ -109,7 +105,21 @@ local Stat = lpeg.V "Stat"
 local Stats = lpeg.V "Stats"
 local Block = lpeg.V "Block"
 
-local Grammar = lpeg.P { "Prog",
+grammar.maxmatch = 0
+grammar.currentline = 1
+grammar.currentcol = 1
+
+-- local newLine = lpeg.P("\n") * lpeg.P(function (_, _)
+--     grammar.currentline = grammar.currentline + 1
+--     return true
+-- end)
+
+local simpleComment = '#' * (lpeg.P(1) - '\n') ^ 0
+local blockComment = '#{' * (lpeg.P(1) - '#}')^0  * '#}'
+local comment =  blockComment + simpleComment
+
+local Grammar = lpeg.P { 
+    "Prog",
     Prog = Space * Stats * -1,
     Stats = Stat * T";" * Stats ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";" ^ -1 * T"}",
@@ -122,13 +132,9 @@ local Grammar = lpeg.P { "Prog",
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^ 0) / foldBin,
-    Space = (lpeg.S(" \t\n") + comment) ^ 0 *
+    Space = (comment + lpeg.S(" \n\t")) ^ 0 *
         lpeg.P(function(s, p)
-
-            if string.sub(s, p - 1, p - 1) == "\n" then
-                grammar.currentline = grammar.currentline + 1
-            end
-
+            grammar.currentcol = grammar.currentcol + 1
             grammar.maxmatch = math.max(grammar.maxmatch, p)
             return true
         end)

@@ -20,7 +20,7 @@ local function syntaxError(input, max)
     print("line: " .. line)
     print("col: " .. col)
     print(string.sub(input, max - 5, max - 1) .. string.sub(input, max, max + 11))
-    print("\n" .. string.rep(" ", 4) .. "^^^" )
+    print(string.rep(" ", col) .. "^--" )
 end
 
 function parser.parse(input)

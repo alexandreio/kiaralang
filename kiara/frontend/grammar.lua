@@ -1,3 +1,4 @@
+local pt = require "pt"
 local lpeg = require "lpeg"
 
 local grammar = {}
@@ -40,6 +41,13 @@ local function foldBin(lst)
     return tree
 end
 
+local function foldNot (exp)
+    return {tag="not", e1=exp[1]}
+end
+
+local function foldMinus (exp)
+    return {tag="minus", e1=exp[1]}
+end
 
 
 local Alpha = lpeg.R("AZ", "az")
@@ -104,6 +112,8 @@ local Comp = lpeg.V "Comp"
 local Stat = lpeg.V "Stat"
 local Stats = lpeg.V "Stats"
 local Block = lpeg.V "Block"
+local Minus = lpeg.V "Minus"
+local Not = lpeg.V "Not"
 
 grammar.maxmatch = 0
 grammar.currentline = 1
@@ -127,11 +137,13 @@ local Grammar = lpeg.P {
         + ID * T"=" * Comp / nodeAssgn
         + Rw"return" * Comp / nodeRet
         + Print * Comp / nodePrint,
-    Factor = Numeral + T"(" * Comp * T")" + Var,
+    Factor =  Not +  Minus + Numeral + T"(" * Comp * T")" + Var,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^ 0) / foldBin,
+    Not = Space * lpeg.Ct(T"!" * Comp ^0) / foldNot,
+    Minus = Space * lpeg.Ct(T"-" * Comp ^0) / foldMinus,
     Space = (comment + lpeg.S(" \n\t")) ^ 0 *
         lpeg.P(function(s, p)
             grammar.currentcol = grammar.currentcol + 1

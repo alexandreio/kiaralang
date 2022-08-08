@@ -35,6 +35,12 @@ function Compiler:codeExp(ast)
     if ast.tag == "number" then
         self:addCode("push")
         self:addCode(ast.val)
+    elseif ast.tag == "minus" then
+        self:codeExp(ast.e1)
+        self:addCode("minus")
+    elseif ast.tag == "not" then
+        self:codeExp(ast.e1)
+        self:addCode("not")
     elseif ast.tag == "variable" then
         self:addCode("load")
         self:addCode(self:var2num(ast.var))

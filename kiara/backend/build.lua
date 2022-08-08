@@ -24,6 +24,10 @@ function build.run(code, mem, stack)
             pc = pc + 1
             top = top + 1
             stack[top] = code[pc]
+        elseif code[pc] == "not" then
+            stack[top] = bool_to_number(stack[top]  == 0)
+        elseif code[pc] == "minus" then
+            stack[top] = -stack[top]
         elseif code[pc] == "add" then
             stack[top - 1] = stack[top - 1] + stack[top]
             top = top - 1

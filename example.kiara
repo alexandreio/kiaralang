@@ -1,10 +1,9 @@
-# hello
-#{ 
-    this
-    is
-    a
-    multiple
-    line
-    comment
-#}
+x = 5;
+y = x;
+z = 1;
+@ x;
+@ -y;
+@ z;
+@ !z;
 @ (1 > 0);
+@ !(1 > 0);

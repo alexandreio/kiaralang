@@ -3,25 +3,24 @@ local lpeg = require "lpeg"
 
 local grammar = {}
 
+local function node(tag, ...)
+    local labels = table.pack(...)
+    local params = table.concat(labels, ", ")
+    local fields = string.gsub(params, "(%w+)", "%1 = %1")
+
+    local code = string.format(
+        "return function (%s) return {tag = '%s', %s} end",
+        params, tag, fields
+    )
+
+    return load(code)()
+
+end
+
 local function nodeNum(num)
     return { tag = "number", val = tonumber(num) }
 end
 
-local function nodeVar(var)
-    return { tag = "variable", var = var }
-end
-
-local function nodeAssgn(id, exp)
-    return { tag = "assgn", id = id, exp = exp }
-end
-
-local function nodeRet(exp)
-    return { tag = "ret", exp = exp }
-end
-
-local function nodePrint(exp)
-    return { tag = "print", exp = exp }
-end
 
 local function nodeSeq(st1, st2)
     if st2 == nil then
@@ -31,6 +30,17 @@ local function nodeSeq(st1, st2)
     return { tag = "seq", st1 = st1, st2 = st2 }
 end
 
+
+local function nodeNot (exp)
+    return {tag="not", e1=exp[1]}
+end
+
+
+local function nodeMinus (exp)
+    return {tag="minus", e1=exp[1]}
+end
+
+
 local function foldBin(lst)
     local tree = lst[1]
 
@@ -39,14 +49,6 @@ local function foldBin(lst)
     end
 
     return tree
-end
-
-local function foldNot (exp)
-    return {tag="not", e1=exp[1]}
-end
-
-local function foldMinus (exp)
-    return {tag="minus", e1=exp[1]}
 end
 
 
@@ -85,7 +87,7 @@ local Numeral = (ScientificNumber + HexNumber + FloatNumber + Number) / nodeNum 
 
 
 local ID = (lpeg.C(Alpha * AlphaNum ^ 0) -excluded) * Space
-local Var = ID / nodeVar
+local Var = ID / node("variable", "var")
 
 local GEQ = lpeg.P(">=")
 local LEQ = lpeg.P("<=")
@@ -119,10 +121,6 @@ grammar.maxmatch = 0
 grammar.currentline = 1
 grammar.currentcol = 1
 
--- local newLine = lpeg.P("\n") * lpeg.P(function (_, _)
---     grammar.currentline = grammar.currentline + 1
---     return true
--- end)
 
 local simpleComment = '#' * (lpeg.P(1) - '\n') ^ 0
 local blockComment = '#{' * (lpeg.P(1) - '#}')^0  * '#}'
@@ -132,18 +130,18 @@ local Grammar = lpeg.P {
     "Prog",
     Prog = Space * Stats * -1,
     Stats = Stat * T";" * Stats ^ -1 / nodeSeq,
-    Block = T"{" * Stats * T";" ^ -1 * T"}",
+    Block = (T"{" * T"}") + (T"{" * Stats * T";" ^ -1 * T"}"),
     Stat = Block
-        + ID * T"=" * Comp / nodeAssgn
-        + Rw"return" * Comp / nodeRet
-        + Print * Comp / nodePrint,
+        + ID * T"=" * Comp / node("assgn", "id", "exp")
+        + Rw"return" * Comp / node("ret", "exp")
+        + Print * Comp / node("print", "exp"),
     Factor =  Not +  Minus + Numeral + T"(" * Comp * T")" + Var,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^ 0) / foldBin,
-    Not = Space * lpeg.Ct(T"!" * Comp ^0) / foldNot,
-    Minus = Space * lpeg.Ct(T"-" * Comp ^0) / foldMinus,
+    Not = Space * lpeg.Ct(T"!" * Comp ^0) / nodeNot,
+    Minus = Space * lpeg.Ct(T"-" * Comp ^0) / nodeMinus,
     Space = (comment + lpeg.S(" \n\t")) ^ 0 *
         lpeg.P(function(s, p)
             grammar.currentcol = grammar.currentcol + 1

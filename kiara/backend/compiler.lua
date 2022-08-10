@@ -31,6 +31,20 @@ function Compiler:var2num(id)
     return num
 end
 
+function Compiler:currentPosition()
+    return #self.code
+end
+
+function Compiler:codeJmp(op)
+    self:addCode(op)
+    self:addCode(0)
+    return self:currentPosition()
+end
+
+function Compiler:fixJmp2here(jmp)
+    self.code[jmp] = self:currentPosition()
+end
+
 function Compiler:codeExp(ast)
     if ast.tag == "number" then
         self:addCode("push")
@@ -66,6 +80,20 @@ function Compiler:codeStat(ast)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
+    elseif ast.tag == "if1" then
+        self:codeExp(ast.cond)
+        local jmp = self:codeJmp("jmpZ")
+        self:codeStat(ast.th)
+        
+
+        if ast.el == nil then
+            self:fixJmp2here(jmp)
+        else
+            local jmp2 = self:codeJmp("jmp")
+            self:fixJmp2here(jmp)
+            self:codeStat(ast.el)
+            self:fixJmp2here(jmp2)
+        end
     else error("invalid tree")
     end
 end

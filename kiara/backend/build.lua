@@ -74,6 +74,13 @@ function build.run(code, mem, stack)
             local id = code[pc]
             mem[id] = stack[top]
             top = top - 1
+        elseif code[pc] == "jmp" then
+            pc = code[pc + 1]
+        elseif code[pc] == "jmpZ" then
+            pc = pc + 1
+            if stack[top] == 0 or stack[top] == nil then
+                pc = code[pc]
+            end
         else error("unknow instruction")
         end
         pc = pc + 1

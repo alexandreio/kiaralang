@@ -60,7 +60,7 @@ local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
 local Space = lpeg.V "Space"
 
-local reserved = {"return", "if"}
+local reserved = {"return", "if", "elseif", "else"}
 local excluded = lpeg.P(false)
 for i = 1, #reserved do
     excluded = excluded +  reserved[i]
@@ -116,6 +116,8 @@ local Stats = lpeg.V "Stats"
 local Block = lpeg.V "Block"
 local Minus = lpeg.V "Minus"
 local Not = lpeg.V "Not"
+local If = lpeg.V"If"
+local Else = lpeg.V"Else"
 
 grammar.maxmatch = 0
 grammar.currentline = 1
@@ -129,12 +131,15 @@ local comment =  blockComment + simpleComment
 local Grammar = lpeg.P { 
     "Prog",
     Prog = Space * Stats * -1,
-    Stats = Stat * T";" * Stats ^ -1 / nodeSeq,
-    Block = (T"{" * T"}") + (T"{" * Stats * T";" ^ -1 * T"}"),
+    Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
+    Block = T"{" * Stats * T";"^-1 * T"}",
     Stat = Block
-        + ID * T"=" * Comp / node("assgn", "id", "exp")
-        + Rw"return" * Comp / node("ret", "exp")
-        + Print * Comp / node("print", "exp"),
+        + If
+        + ID * T"=" * Exp / node("assgn", "id", "exp")
+        + Rw"return" * Exp * T";" ^ - 1/ node("ret", "exp")
+        + Print * Exp / node("print", "exp"),
+    If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
+    Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
     Factor =  Not +  Minus + Numeral + T"(" * Comp * T")" + Var,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,

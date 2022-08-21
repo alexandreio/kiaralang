@@ -80,12 +80,22 @@ function build.run(code, mem, stack)
         elseif code[pc] == "getarray" then
             local array = stack[top - 1]
             local index = stack[top]
+            
+            if index > array.size then
+                error("index out of range. max array size: " .. array.size)
+            end
+
             stack[top - 1] = array[index]
             top = top - 1
         elseif code[pc] == "setarray" then
             local array = stack[top - 2]
             local index = stack[top - 1]
             local value = stack[top]
+            
+            if index > array.size then
+                error("index out of range. max array size: " .. array.size)
+            end
+            
             array[index] = value
             top = top - 3
         elseif code[pc] == "jmp" then

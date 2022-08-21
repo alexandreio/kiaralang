@@ -1,3 +1,4 @@
+local pt = require "pt"
 local build = {}
 
 local function bool_to_number(value)
@@ -17,7 +18,27 @@ function build.run(code, mem, stack)
         if code[pc] == "ret" then
             return
         elseif code[pc] == "print" then
-            print(stack[top])
+            if type(stack[top]) == "table" then
+                local arr = stack[top]
+                
+                io.write("[")
+                for i=1, arr.size do
+                    if arr[i] == nil then
+                        io.write("nil")
+                    else
+                        io.write(arr[i])
+                    end
+                    if i ~= arr.size then
+                        io.write(", ")
+                    end
+                end
+                io.write("]")
+                
+
+            else
+                print(stack[top])
+            end
+            
 
             top = top - 1
         elseif code[pc] == "push" then
@@ -95,7 +116,7 @@ function build.run(code, mem, stack)
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
-            
+
             array[index] = value
             top = top - 3
         elseif code[pc] == "jmp" then

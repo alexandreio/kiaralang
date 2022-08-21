@@ -90,7 +90,7 @@ local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
 local Space = lpeg.V "Space"
 
-local reserved = {"return", "if", "elseif", "else", "while", "new"}
+local reserved = {"return", "if", "elseif", "else", "while", "new", "function"}
 local excluded = lpeg.P(false)
 for i = 1, #reserved do
     excluded = excluded +  reserved[i]
@@ -116,7 +116,8 @@ local ScientificNumber = (FloatNumber + Number) * lpeg.S("eE") * lpeg.P("-") ^ -
 local Numeral = (ScientificNumber + HexNumber + FloatNumber + Number) / nodeNum * Space
 
 
-local ID = (lpeg.C(Alpha * AlphaNum ^ 0) -excluded) * Space
+-- local ID = (lpeg.C(Alpha * AlphaNum ^ 0) -excluded) * Space
+local ID = lpeg.V"ID"
 local Var = ID / node("variable", "var")
 
 local GEQ = lpeg.P(">=")
@@ -148,6 +149,7 @@ local Minus = lpeg.V "Minus"
 local Not = lpeg.V "Not"
 local If = lpeg.V"If"
 local Else = lpeg.V"Else"
+local FuncDec = lpeg.V"FuncDec"
 
 grammar.maxmatch = 0
 grammar.currentline = 1
@@ -160,7 +162,8 @@ local comment =  blockComment + simpleComment
 
 local Grammar = lpeg.P { 
     "Prog",
-    Prog = Space * Stats * -1,
+    Prog = Space * FuncDec  * -1,
+    FuncDec = Rw"function" * ID * T"("  *  T")" * Block / node("function", "name", "body"),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}",
     Stat = T";"
@@ -187,7 +190,8 @@ local Grammar = lpeg.P {
             grammar.currentcol = grammar.currentcol + 1
             grammar.maxmatch = math.max(grammar.maxmatch, p)
             return true
-        end)
+        end),
+    ID = (lpeg.C(Alpha * AlphaNum ^ 0) -excluded) * Space
 
 }
 

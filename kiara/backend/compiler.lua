@@ -136,8 +136,17 @@ function Compiler:codeStat(ast)
     end
 end
 
+function Compiler:codeFunction(ast)
+    if ast.name ~= "main" then
+        error("no function name")
+    end
+
+    self:codeStat(ast.body)
+end
+
+
 function Compiler:compile(ast)
-    self:codeStat(ast)
+    self:codeFunction(ast)
     self:addCode("push")
     self:addCode(0)
     self:addCode("ret")

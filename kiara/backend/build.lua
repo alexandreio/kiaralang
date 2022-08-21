@@ -25,9 +25,8 @@ local function ndarray(d)
     return recursiveAllocator(d, 1)
 end
 
-function build.run(code, mem, stack)
+function build.run(code, mem, stack, top)
     local pc = 1
-    local top = 0
 
     while true do
         --[[
@@ -36,7 +35,11 @@ function build.run(code, mem, stack)
             io.write("\n", code[pc], "\n")
         -- ]]
         if code[pc] == "ret" then
-            return
+            return top
+        elseif code[pc] == "call" then
+            pc = pc + 1
+            local code = code[pc]
+            top = build.run(code, mem, stack, top)
         elseif code[pc] == "print" then
             if type(stack[top]) == "table" then
                 local arr = stack[top]

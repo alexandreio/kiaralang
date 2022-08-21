@@ -13,7 +13,7 @@ local ops = {
     ["!="] = "not_equal",
 }
 
-local Compiler = { code = {}, vars = {}, nvars = 0 }
+local Compiler = { funcs = {}, vars = {}, nvars = 0 }
 
 function Compiler:addCode(op)
     local code = self.code
@@ -50,6 +50,17 @@ function Compiler:fixJmp2here(jmp)
     self.code[jmp] = self:currentPosition()
 end
 
+function Compiler:codeCall(ast)
+    local func = self.funcs[ast.fname]
+    if not func then
+        error("undefined function " .. ast.fname)
+    end
+
+    self:addCode("call")
+    self:addCode(func.code)
+
+end
+
 function Compiler:codeExp(ast)
     if ast.tag == "number" then
         self:addCode("push")
@@ -60,6 +71,8 @@ function Compiler:codeExp(ast)
     elseif ast.tag == "not" then
         self:codeExp(ast.e1)
         self:addCode("not")
+    elseif ast.tag == "call" then
+        self:codeCall(ast)
     elseif ast.tag == "variable" then
         self:addCode("load")
         self:addCode(self:var2num(ast.var))
@@ -137,20 +150,31 @@ function Compiler:codeStat(ast)
 end
 
 function Compiler:codeFunction(ast)
-    if ast.name ~= "main" then
-        error("no function name")
+    local code = {}
+    if self.funcs[ast.name] ~= nil then
+        error("function '" .. ast.name .. "' already declared")
     end
-
+    self.funcs[ast.name] = {code = code}
+    self.code = code
     self:codeStat(ast.body)
+    self:addCode("push")
+    self:addCode(0)
+    self:addCode("ret")
 end
 
 
 function Compiler:compile(ast)
-    self:codeFunction(ast)
-    self:addCode("push")
-    self:addCode(0)
-    self:addCode("ret")
-    return self.code
+    for i = 1, #ast do
+        self:codeFunction(ast[i])
+    end
+
+    local main = self.funcs["main"]
+    if not main then
+        error("no function 'main'")
+    end
+
+
+    return main.code
 end
 
 return Compiler

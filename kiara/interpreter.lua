@@ -28,6 +28,6 @@ print(pt.pt(code))
 
 local stack = {}
 local mem = { k0 = 0, k1 = 1, k10 = 10 }
-backend_build.run(code, mem, stack)
+backend_build.run(code, mem, stack, 0)
 print("\nstack:")
 print(stack[1])

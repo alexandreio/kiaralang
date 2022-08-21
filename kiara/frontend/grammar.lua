@@ -137,6 +137,7 @@ local opA = lpeg.C(lpeg.S "+-") * Space
 local opC = (lpeg.C(BINCOMP)) * Space
 
 local Lhs = lpeg.V"Lhs"
+local Call = lpeg.V"Call"
 local Factor = lpeg.V "Factor"
 local Pow = lpeg.V "Pow"
 local Term = lpeg.V "Term"
@@ -162,7 +163,7 @@ local comment =  blockComment + simpleComment
 
 local Grammar = lpeg.P { 
     "Prog",
-    Prog = Space * FuncDec  * -1,
+    Prog = Space * lpeg.Ct(FuncDec^1)  * -1,
     FuncDec = Rw"function" * ID * T"("  *  T")" * Block / node("function", "name", "body"),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}",
@@ -177,8 +178,14 @@ local Grammar = lpeg.P {
     If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
     Lhs = lpeg.Ct(Var * (T"[" * Exp * T"]")^0) / foldIndex,
+    Call = ID * T"(" * T")" / node("call", "fname"),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
-            + Not +  Minus + Numeral + T"(" * Comp * T")" + Lhs,
+            + Not 
+            +  Minus 
+            + Numeral 
+            + T"(" * Comp * T")" 
+            + Call
+            + Lhs,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,

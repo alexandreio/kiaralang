@@ -1,3 +1,7 @@
+function foo () {
+    return 33
+}
+
 function main() {
     c = new[10];
     c[2] = 100;
@@ -12,4 +16,6 @@ function main() {
         @(d[3][n][1]);
         n = n + 1;
     };
+
+    @ (foo())
 }

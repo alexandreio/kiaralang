@@ -7,7 +7,11 @@ local function node(tag, ...)
     local labels = table.pack(...)
     local params = table.concat(labels, ", ")
     local fields = string.gsub(params, "(%w+)", "%1 = %1")
-
+    print(pt.pt(labels))
+    print(pt.pt(params))
+    print(pt.pt(fields))
+    
+    print("---")
     local code = string.format(
         "return function (%s) return {tag = '%s', %s} end",
         params, tag, fields
@@ -47,6 +51,32 @@ local function foldBin(lst)
     for i = 2, #lst, 2 do
         tree = { tag = "binop", e1 = tree, op = lst[i], e2 = lst[i + 1] }
     end
+
+    return tree
+end
+
+local function foldIndex(lst)
+    local tree = lst[1]
+
+    for i = 2, #lst do
+        tree = {tag = "indexed", array=tree, index=lst[i]}
+    end
+
+    return tree
+end
+
+local function foldNew(lst)
+    if #lst == 1 then
+        print(">>" .. lst[1].val)
+        return {tag = "new", size = {tag="number", val=lst[1].val}}
+    end
+
+    local tree = {tag = "multnew", lvls= {}}
+    for i = 1, #lst do
+        tree.lvls[i] = lst[i]
+    end
+
+    -- print(pt.pt(tree))
 
     return tree
 end
@@ -143,9 +173,8 @@ local Grammar = lpeg.P {
         + Print * Exp / node("print", "exp"),
     If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
-    Lhs = Var * T"[" * Exp * T"]" / node("indexed", "array", "index")
-        + Var,
-    Factor =  Rw"new" * T"[" * Exp * T"]" /node("new", "size")
+    Lhs = lpeg.Ct(Var * (T"[" * Exp * T"]")^0) / foldIndex,
+    Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
             + Not +  Minus + Numeral + T"(" * Comp * T")" + Lhs,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,

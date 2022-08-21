@@ -5,6 +5,26 @@ local function bool_to_number(value)
     return value and 1 or 0
   end
 
+local function recursiveAllocator(d, depth)
+    local current_size = d[depth]
+    local array = {size=current_size}
+
+    if depth == #d then
+        return array
+    end
+
+    for i = 1, current_size do
+        array[i] = recursiveAllocator(d, depth + 1)
+    end
+
+    return array
+end
+
+local function ndarray(d)
+    -- source: https://gist.github.com/alexholehouse/6190193
+    return recursiveAllocator(d, 1)
+end
+
 function build.run(code, mem, stack)
     local pc = 1
     local top = 0
@@ -76,7 +96,7 @@ function build.run(code, mem, stack)
         elseif code[pc] == "big_eq" then
             stack[top - 1] = bool_to_number(stack[top - 1] >= stack[top])
             top = top - 1
-        elseif code[pc] == "sml_eq" then
+        elseif code[pc] == "sml_eql" then
             stack[top - 1] = bool_to_number(stack[top - 1] <= stack[top])
             top = top - 1
         elseif code[pc] == "equal" then
@@ -98,10 +118,29 @@ function build.run(code, mem, stack)
         elseif code[pc] == "newarray" then
             local size = stack[top]
             stack[top] = {size=size}
+        elseif code[pc] == "multnewarray" then
+            -- print("\n")
+            -- print("--------------------")
+
+            local lvls = stack[top]
+            -- print(lvls)
+            -- print(pt.pt(stack))
+            
+            local nd = {}
+            for i = 1, lvls do
+                nd[i] = stack[i]
+            end
+            
+            local multarr = ndarray(nd)
+            -- print(pt.pt(multarr))
+            stack[top] = multarr
+            -- print("--------------------")
+            -- print("\n")
         elseif code[pc] == "getarray" then
             local array = stack[top - 1]
             local index = stack[top]
             
+            -- print(">> " .. pt.pt(array))
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
@@ -113,6 +152,8 @@ function build.run(code, mem, stack)
             local index = stack[top - 1]
             local value = stack[top]
             
+            print(">> " .. array.size)
+
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
@@ -127,7 +168,7 @@ function build.run(code, mem, stack)
             if stack[top] == 0 or stack[top] == nil then
                 pc = code[pc]
             end
-        else error("unknow instruction")
+        else error("unknow instruction: " .. code[pc])
         end
         pc = pc + 1
     end

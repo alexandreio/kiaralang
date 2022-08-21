@@ -70,6 +70,13 @@ function Compiler:codeExp(ast)
     elseif ast.tag == "new" then
         self:codeExp(ast.size)
         self:addCode("newarray")
+    elseif ast.tag == "multnew" then
+        for i = 1, #ast.lvls do
+            self:codeExp(ast.lvls[i])
+        end
+        self:addCode("push")
+        self:addCode(#ast.lvls)
+        self:addCode("multnewarray")
     elseif ast.tag == "binop" then
         self:codeExp(ast.e1)
         self:codeExp(ast.e2)

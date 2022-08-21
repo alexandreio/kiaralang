@@ -60,7 +60,7 @@ local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
 local Space = lpeg.V "Space"
 
-local reserved = {"return", "if", "elseif", "else"}
+local reserved = {"return", "if", "elseif", "else", "while", "new"}
 local excluded = lpeg.P(false)
 for i = 1, #reserved do
     excluded = excluded +  reserved[i]
@@ -105,7 +105,7 @@ local opM = lpeg.C(lpeg.S("*/%")) * Space
 local opA = lpeg.C(lpeg.S "+-") * Space
 local opC = (lpeg.C(BINCOMP)) * Space
 
-
+local Lhs = lpeg.V"Lhs"
 local Factor = lpeg.V "Factor"
 local Pow = lpeg.V "Pow"
 local Term = lpeg.V "Term"
@@ -133,14 +133,20 @@ local Grammar = lpeg.P {
     Prog = Space * Stats * -1,
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}",
-    Stat = Block
+    Stat = T";"
+        + T"{" * T"}"
+        + Block
         + If
-        + ID * T"=" * Exp / node("assgn", "id", "exp")
+        + Rw"while" * Exp * Block / node("while1", "cond", "body")
+        + Lhs * T"=" * Exp / node("assgn", "lhs", "exp")
         + Rw"return" * Exp * T";" ^ - 1/ node("ret", "exp")
         + Print * Exp / node("print", "exp"),
     If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
-    Factor =  Not +  Minus + Numeral + T"(" * Comp * T")" + Var,
+    Lhs = Var * T"[" * Exp * T"]" / node("indexed", "array", "index")
+        + Var,
+    Factor =  Rw"new" * T"[" * Exp * T"]" /node("new", "size")
+            + Not +  Minus + Numeral + T"(" * Comp * T")" + Lhs,
     Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,

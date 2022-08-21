@@ -35,6 +35,11 @@ function Compiler:currentPosition()
     return #self.code
 end
 
+function Compiler:codeJmpB(op, label)
+    self:addCode(op)
+    self:addCode(label)
+end
+
 function Compiler:codeJmp(op)
     self:addCode(op)
     self:addCode(0)
@@ -58,6 +63,13 @@ function Compiler:codeExp(ast)
     elseif ast.tag == "variable" then
         self:addCode("load")
         self:addCode(self:var2num(ast.var))
+    elseif ast.tag == "indexed" then
+        self:codeExp(ast.array)
+        self:codeExp(ast.index)
+        self:addCode("getarray")
+    elseif ast.tag == "new" then
+        self:codeExp(ast.size)
+        self:addCode("newarray")
     elseif ast.tag == "binop" then
         self:codeExp(ast.e1)
         self:codeExp(ast.e2)
@@ -66,11 +78,24 @@ function Compiler:codeExp(ast)
     end
 end
 
-function Compiler:codeStat(ast)
-    if ast.tag == "assgn" then
+function Compiler:codeAssgn(ast)
+    local lhs = ast.lhs
+    if lhs.tag == "variable" then
         self:codeExp(ast.exp)
         self:addCode("store")
-        self:addCode(self:var2num(ast.id))
+        self:addCode(self:var2num(lhs.var))
+    elseif lhs.tag == "indexed" then
+        self:codeExp(lhs.array)
+        self:codeExp(lhs.index)
+        self:codeExp(ast.exp)
+        self:addCode("setarray")
+    else error("unknow tag")
+    end
+end
+
+function Compiler:codeStat(ast)
+    if ast.tag == "assgn" then
+        self:codeAssgn(ast)
     elseif ast.tag == "seq" then
         self:codeStat(ast.st1)
         self:codeStat(ast.st2)
@@ -80,11 +105,17 @@ function Compiler:codeStat(ast)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
+    elseif ast.tag == "while1" then
+        local ilabel = self:currentPosition()
+        self:codeExp(ast.cond)
+        local jmp = self:codeJmp("jmpZ")
+        self:codeStat(ast.body)
+        self:codeJmpB("jmp", ilabel)
+        self:fixJmp2here(jmp)
     elseif ast.tag == "if1" then
         self:codeExp(ast.cond)
         local jmp = self:codeJmp("jmpZ")
         self:codeStat(ast.th)
-        
 
         if ast.el == nil then
             self:fixJmp2here(jmp)

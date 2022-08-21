@@ -74,7 +74,22 @@ function build.run(code, mem, stack)
             local id = code[pc]
             mem[id] = stack[top]
             top = top - 1
+        elseif code[pc] == "newarray" then
+            local size = stack[top]
+            stack[top] = {size=size}
+        elseif code[pc] == "getarray" then
+            local array = stack[top - 1]
+            local index = stack[top]
+            stack[top - 1] = array[index]
+            top = top - 1
+        elseif code[pc] == "setarray" then
+            local array = stack[top - 2]
+            local index = stack[top - 1]
+            local value = stack[top]
+            array[index] = value
+            top = top - 3
         elseif code[pc] == "jmp" then
+            local index = stack[top]
             pc = code[pc + 1]
         elseif code[pc] == "jmpZ" then
             pc = pc + 1

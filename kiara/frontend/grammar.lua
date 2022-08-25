@@ -167,7 +167,7 @@ local Grammar = lpeg.P {
     FuncDec = (Rw"function" * ID * T"(" * T")" * Block
             + Rw"function" * ID * T"(" * T");") / node("function", "name", "body"),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
-    Block = T"{" * Stats * T";"^-1 * T"}",
+    Block = T"{" * Stats * T";"^-1 * T"}" / node("block", "body"),
     Stat = T";"
         + T"{" * T"}"
         + Block

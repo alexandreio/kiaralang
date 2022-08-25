@@ -118,6 +118,10 @@ function Compiler:codeAssgn(ast)
     end
 end
 
+function Compiler:codeBlock (ast)
+    self:codeStat(ast.body)
+end
+
 function Compiler:codeStat(ast)
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
@@ -125,6 +129,8 @@ function Compiler:codeStat(ast)
         self:codeCall(ast)
         self:addCode("pop")
         self:addCode(1)
+    elseif ast.tag == "block" then
+        self:codeBlock(ast)
     elseif ast.tag == "seq" then
         self:codeStat(ast.st1)
         self:codeStat(ast.st2)

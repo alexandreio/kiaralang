@@ -1,24 +1,4 @@
-function odd ();
 
-function even () {
-    if n {
-        n = n - 1;
-        return odd()
-    } else {
-        return 1
-    }
-}
-
-function odd () {
-    if n {
-        n = n - 1;
-        return even()
-    } else {
-        return 0
-    }
-}
-
-function main () {
-    n = 10;
-    return even()
+function main() {
+    {return 20}
 }

@@ -1,21 +1,24 @@
-function foo () {
-    return 33
+function odd ();
+
+function even () {
+    if n {
+        n = n - 1;
+        return odd()
+    } else {
+        return 1
+    }
 }
 
-function main() {
-    c = new[10];
-    c[2] = 100;
-    @(c);
+function odd () {
+    if n {
+        n = n - 1;
+        return even()
+    } else {
+        return 0
+    }
+}
 
-    d = new[3][5][2];
-    d[3][1][1] = 6000;
-    d[3][2][1] = 7000;
-    d[3][3][1] = 8000;
-    n = 1;
-    while (n <= 3) {
-        @(d[3][n][1]);
-        n = n + 1;
-    };
-
-    @ (foo())
+function main () {
+    n = 10;
+    return even()
 }

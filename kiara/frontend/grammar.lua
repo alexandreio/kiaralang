@@ -164,7 +164,8 @@ local comment =  blockComment + simpleComment
 local Grammar = lpeg.P { 
     "Prog",
     Prog = Space * lpeg.Ct(FuncDec^1)  * -1,
-    FuncDec = Rw"function" * ID * T"("  *  T")" * Block / node("function", "name", "body"),
+    FuncDec = (Rw"function" * ID * T"(" * T")" * Block
+            + Rw"function" * ID * T"(" * T");") / node("function", "name", "body"),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}",
     Stat = T";"
@@ -172,6 +173,7 @@ local Grammar = lpeg.P {
         + Block
         + If
         + Rw"while" * Exp * Block / node("while1", "cond", "body")
+        + Call
         + Lhs * T"=" * Exp / node("assgn", "lhs", "exp")
         + Rw"return" * Exp * T";" ^ - 1/ node("ret", "exp")
         + Print * Exp / node("print", "exp"),
@@ -181,7 +183,7 @@ local Grammar = lpeg.P {
     Call = ID * T"(" * T")" / node("call", "fname"),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
             + Not 
-            +  Minus 
+            + Minus 
             + Numeral 
             + T"(" * Comp * T")" 
             + Call

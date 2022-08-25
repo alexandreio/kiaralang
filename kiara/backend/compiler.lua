@@ -1,3 +1,4 @@
+local pt = require("pt")
 local ops = {
     ["+"] = "add",
     ["-"] = "sub",
@@ -51,14 +52,18 @@ function Compiler:fixJmp2here(jmp)
 end
 
 function Compiler:codeCall(ast)
+    print(">>" .. ast.fname)
+    print(pt.pt(ast))
     local func = self.funcs[ast.fname]
+
     if not func then
         error("undefined function " .. ast.fname)
     end
 
-    self:addCode("call")
-    self:addCode(func.code)
-
+    if func.code ~= nil then
+        self:addCode("call")
+        self:addCode(func.code)
+    end
 end
 
 function Compiler:codeExp(ast)
@@ -116,6 +121,10 @@ end
 function Compiler:codeStat(ast)
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
+    elseif ast.tag == "call" then
+        self:codeCall(ast)
+        self:addCode("pop")
+        self:addCode(1)
     elseif ast.tag == "seq" then
         self:codeStat(ast.st1)
         self:codeStat(ast.st2)
@@ -151,15 +160,20 @@ end
 
 function Compiler:codeFunction(ast)
     local code = {}
-    if self.funcs[ast.name] ~= nil then
+    if self.funcs[ast.name] ~= nil and self.funcs[ast.name].foward == nil then
         error("function '" .. ast.name .. "' already declared")
     end
-    self.funcs[ast.name] = {code = code}
-    self.code = code
-    self:codeStat(ast.body)
-    self:addCode("push")
-    self:addCode(0)
-    self:addCode("ret")
+
+    self.funcs[ast.name] = {foward = true}
+
+    if ast.body then
+        self.funcs[ast.name] = {code = code, foward = nil}
+        self.code = code
+        self:codeStat(ast.body)
+        self:addCode("push")
+        self:addCode(0)
+        self:addCode("ret")
+    end
 end
 
 

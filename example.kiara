@@ -1,6 +1,10 @@
 function main() {
-    var t;
-    {var x = 10};
+    var x = 10;
     var y = 20;
-    return 1
+    y = x + 3;
+    @(y);
+    {
+        var z = 30;
+        return y;
+    }
 }

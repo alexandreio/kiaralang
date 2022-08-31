@@ -27,6 +27,7 @@ end
 
 function build.run(code, mem, stack, top)
     local pc = 1
+    local base = top
 
     while true do
         --[[
@@ -118,10 +119,20 @@ function build.run(code, mem, stack, top)
             local id = code[pc]
             top = top + 1
             stack[top] = mem[id]
+        elseif code[pc] == "loadL" then
+            pc = pc + 1
+            local id = code[pc]
+            top = top + 1
+            stack[top] = stack[base + id]
         elseif code[pc] == "store" then
             pc = pc + 1
             local id = code[pc]
             mem[id] = stack[top]
+            top = top - 1
+        elseif code[pc] == "storeL" then
+            pc = pc + 1
+            local id = code[pc]
+            stack[base + id] = stack[top]
             top = top - 1
         elseif code[pc] == "newarray" then
             local size = stack[top]

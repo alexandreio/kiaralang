@@ -36,6 +36,16 @@ function Compiler:currentPosition()
     return #self.code
 end
 
+function Compiler:findLocal(name) 
+    local loc = self.locals
+    for i = #loc, 1, -1 do
+        if name == loc[i] then
+            return i
+        end
+    end
+    return nil
+end
+
 function Compiler:codeJmpB(op, label)
     self:addCode(op)
     self:addCode(label)
@@ -79,8 +89,14 @@ function Compiler:codeExp(ast)
     elseif ast.tag == "call" then
         self:codeCall(ast)
     elseif ast.tag == "variable" then
-        self:addCode("load")
-        self:addCode(self:var2num(ast.var))
+        local idx = self:findLocal(ast.var)
+        if idx then
+            self:addCode("loadL")
+            self:addCode(idx)
+        else            
+            self:addCode("load")
+            self:addCode(self:var2num(ast.var))
+        end
     elseif ast.tag == "indexed" then
         self:codeExp(ast.array)
         self:codeExp(ast.index)
@@ -107,8 +123,14 @@ function Compiler:codeAssgn(ast)
     local lhs = ast.lhs
     if lhs.tag == "variable" then
         self:codeExp(ast.exp)
-        self:addCode("store")
-        self:addCode(self:var2num(lhs.var))
+        local idx = self:findLocal(lhs.var)
+        if idx then
+            self:addCode("storeL")
+            self:addCode(idx)
+        else
+            self:addCode("store")
+            self:addCode(self:var2num(lhs.var))
+        end
     elseif lhs.tag == "indexed" then
         self:codeExp(lhs.array)
         self:codeExp(lhs.index)

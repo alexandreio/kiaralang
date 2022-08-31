@@ -14,7 +14,7 @@ local ops = {
     ["!="] = "not_equal",
 }
 
-local Compiler = { funcs = {}, vars = {}, nvars = 0 }
+local Compiler = { funcs = {}, vars = {}, nvars = 0, locals = {} }
 
 function Compiler:addCode(op)
     local code = self.code
@@ -119,12 +119,29 @@ function Compiler:codeAssgn(ast)
 end
 
 function Compiler:codeBlock (ast)
+    local oldLevel = #self.locals
     self:codeStat(ast.body)
+    local diff = #self.locals - oldLevel
+    if diff > 0 then
+        for i = 1, diff do
+            table.remove(self.locals)
+        end
+        self:addCode("pop")
+        self:addCode(diff)
+    end
 end
 
 function Compiler:codeStat(ast)
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
+    elseif ast.tag == "local" then
+        if ast.init == nil then
+            print("variavel sem valor")
+            ast.init = {tag = "number", val = 0}
+        end
+        -- print(pt.pt(ast.init))
+        self:codeExp(ast.init)
+        self.locals[#self.locals + 1] = ast.name
     elseif ast.tag == "call" then
         self:codeCall(ast)
         self:addCode("pop")
@@ -137,6 +154,7 @@ function Compiler:codeStat(ast)
     elseif ast.tag == "ret" then
         self:codeExp(ast.exp)
         self:addCode("ret")
+        self:addCode(#self.locals)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
@@ -179,6 +197,7 @@ function Compiler:codeFunction(ast)
         self:addCode("push")
         self:addCode(0)
         self:addCode("ret")
+        self:addCode(#self.locals)
     end
 end
 

@@ -1,4 +1,6 @@
-
 function main() {
-    {return 20}
+    var t;
+    {var x = 10};
+    var y = 20;
+    return 1
 }

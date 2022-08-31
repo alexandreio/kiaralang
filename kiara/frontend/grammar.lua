@@ -90,7 +90,7 @@ local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
 local Space = lpeg.V "Space"
 
-local reserved = {"return", "if", "elseif", "else", "while", "new", "function"}
+local reserved = {"return", "if", "elseif", "else", "while", "new", "function", "var"}
 local excluded = lpeg.P(false)
 for i = 1, #reserved do
     excluded = excluded +  reserved[i]
@@ -171,6 +171,7 @@ local Grammar = lpeg.P {
     Stat = T";"
         + T"{" * T"}"
         + Block
+        + Rw"var" * ID * (T"=" * Exp) ^ -1 / node("local", "name", "init")
         + If
         + Rw"while" * Exp * Block / node("while1", "cond", "body")
         + Call

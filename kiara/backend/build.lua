@@ -35,7 +35,9 @@ function build.run(code, mem, stack, top)
             io.write("\n", code[pc], "\n")
         -- ]]
         if code[pc] == "ret" then
-            return top
+            local n = code[pc + 1]
+            stack[top - n] = stack[top]
+            return top - n
         elseif code[pc] == "call" then
             pc = pc + 1
             local code = code[pc]

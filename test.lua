@@ -99,3 +99,19 @@ assert_stat("0.5e-3", 0.0005)
 assert_stat(".5e-3", 0.0005)
 assert_stat("10e3", 10000.0)
 assert_stat("10E3", 10000.0)
+
+
+-- Rules for Identifiers
+assert_code([[
+    function main() {
+        var a_b = 2;
+        return a_b
+    }
+]], 2)
+
+assert_code([[
+    function main() {
+        var two_gt_one? = (2 > 1);
+        return two_gt_one?
+    }
+]], 1)

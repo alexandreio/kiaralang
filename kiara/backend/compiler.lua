@@ -43,6 +43,14 @@ function Compiler:findLocal(name)
             return i
         end
     end
+
+    local params = self.params
+    for i = 1, #params do
+        if name == params[i] then
+            return -(#params - i)
+        end
+    end
+
     return nil
 end
 
@@ -68,11 +76,16 @@ function Compiler:codeCall(ast)
         error("undefined function " .. ast.fname)
     end
     
-    if #func.params ~= #ast.args then
+    local args = ast.args
+    if #func.params ~= #args then
         error("wrong number of arguments to " .. ast.fname)
     end
 
     if func.code ~= nil then
+        for i = 1, #args do
+            self:codeExp(args[i])
+        end
+
         self:addCode("call")
         self:addCode(func.code)
     end
@@ -183,7 +196,7 @@ function Compiler:codeStat(ast)
     elseif ast.tag == "ret" then
         self:codeExp(ast.exp)
         self:addCode("ret")
-        self:addCode(#self.locals)
+        self:addCode(#self.locals + #self.params)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
@@ -236,11 +249,12 @@ function Compiler:codeFunction(ast)
     if ast.body then
         self.funcs[ast.name] = {code = code, foward = nil, params=ast.params}
         self.code = code
+        self.params = ast.params
         self:codeStat(ast.body)
         self:addCode("push")
         self:addCode(0)
         self:addCode("ret")
-        self:addCode(#self.locals)
+        self:addCode(#self.locals + #self.params)
     end
 end
 
@@ -257,6 +271,13 @@ function Compiler:compile(ast)
 
 
     return main.code
+end
+
+function Compiler:clean()
+    self.funcs = {}
+    self.vars = {}
+    self.nvars = {}
+    self.locals = {}
 end
 
 return Compiler

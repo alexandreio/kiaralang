@@ -105,7 +105,7 @@ end
 local HexDigit = lpeg.R("09") + lpeg.R("AF", "af") 
 local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * (HexDigit ^ 1)
 
-local FloatNumber = lpeg.R("09") ^ 1 * lpeg.P(".") * lpeg.R("09") ^ 1
+local FloatNumber = lpeg.R("09") ^ -1 * lpeg.P(".") * lpeg.R("09") ^ 1
 
 local Number = lpeg.R("09") ^ 1
 local ScientificNumber = (FloatNumber + Number) * lpeg.S("eE") * lpeg.P("-") ^ -1 * Number

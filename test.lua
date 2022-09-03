@@ -84,3 +84,11 @@ assert_stat("(1 == 1)", 1)
 assert_stat("(1 == 2)", 0)
 assert_stat("(1 != 2)", 1)
 assert_stat("(1 != 1)", 0)
+
+
+-- Floating-point numbers
+assert_stat("1.5", 1.5)
+assert_stat("-1.5", -1.5)
+assert_stat("0.1", 0.1)
+assert_stat(".1", 0.1)
+assert_stat(".5", 0.5)

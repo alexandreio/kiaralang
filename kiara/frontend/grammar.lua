@@ -151,6 +151,8 @@ local Not = lpeg.V "Not"
 local If = lpeg.V"If"
 local Else = lpeg.V"Else"
 local FuncDec = lpeg.V"FuncDec"
+local Params = lpeg.V"Params"
+local Args = lpeg.V"Args"
 
 grammar.maxmatch = 0
 grammar.currentline = 1
@@ -164,8 +166,9 @@ local comment =  blockComment + simpleComment
 local Grammar = lpeg.P { 
     "Prog",
     Prog = Space * lpeg.Ct(FuncDec^1)  * -1,
-    FuncDec = (Rw"function" * ID * T"(" * T")" * Block
-            + Rw"function" * ID * T"(" * T");") / node("function", "name", "body"),
+    FuncDec = (Rw"function" * ID * T"(" * Params * T")" * Block
+            + Rw"function" * ID * T"(" * Params * T");") / node("function", "name", "params", "body"),
+    Params = lpeg.Ct((ID * (T"," * ID)^0)^-1),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}" / node("block", "body"),
     Stat = T";"
@@ -181,7 +184,8 @@ local Grammar = lpeg.P {
     If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
     Lhs = lpeg.Ct(Var * (T"[" * Exp * T"]")^0) / foldIndex,
-    Call = ID * T"(" * T")" / node("call", "fname"),
+    Call = ID * T"(" * Args * T")" / node("call", "fname", "args"),
+    Args = lpeg.Ct((Exp * (T"," * Exp)^0)^-1),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
             + Not 
             + Minus 

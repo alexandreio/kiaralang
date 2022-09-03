@@ -1,10 +1,6 @@
 function main() {
-    var x = 10;
-    var y = 20;
-    y = x + 3;
-    @(y);
-    {
-        var z = 30;
-        return y;
-    }
+    var a = 2;
+    a = 15;
+    @ (a);
+    return 2
 }

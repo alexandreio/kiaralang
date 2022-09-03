@@ -154,11 +154,17 @@ function Compiler:codeBlock (ast)
 end
 
 function Compiler:codeStat(ast)
+    print(pt.pt(self.locals))
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
     elseif ast.tag == "local" then
+        for i = 1, #self.locals do
+            if self.locals[i] == ast.name then
+                error("local variable: " .. ast.name .. " already declared locally")
+            end
+        end
+
         if ast.init == nil then
-            print("variavel sem valor")
             ast.init = {tag = "number", val = 0}
         end
         -- print(pt.pt(ast.init))

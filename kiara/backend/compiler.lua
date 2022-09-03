@@ -154,7 +154,6 @@ function Compiler:codeBlock (ast)
 end
 
 function Compiler:codeStat(ast)
-    print(pt.pt(self.locals))
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
     elseif ast.tag == "local" then
@@ -211,9 +210,21 @@ function Compiler:codeStat(ast)
 end
 
 function Compiler:codeFunction(ast)
+    print(pt.pt(ast))
+    print("888888888888888")
     local code = {}
     if self.funcs[ast.name] ~= nil and self.funcs[ast.name].foward == nil then
         error("function '" .. ast.name .. "' already declared")
+    end
+
+    local params = {}
+    for i = 1, #ast.params do
+        local cur_param = ast.params[i]
+        if params[cur_param] ~= nil then
+            error("param " .. cur_param .. "already declared")
+        else params[cur_param] = true
+            
+        end
     end
 
     self.funcs[ast.name] = {foward = true}

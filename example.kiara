@@ -1,3 +1,7 @@
+function foo() {
+    return 10;
+}
+
 function main() {
     var a = 2;
     a = 15;

@@ -119,8 +119,17 @@ assert_code([[
 -- FINAL PROJECT: Empty Statement
 assert_code([[
     function main() {
-        {};;;
+        {};
         ;;;;
+        return 0
+    }
+]], 0)
+
+
+-- FINAL PROJECT:  Print Statement
+assert_code([[
+    function main() {
+        @ (2);
         return 0
     }
 ]], 0)

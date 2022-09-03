@@ -92,3 +92,10 @@ assert_stat("-1.5", -1.5)
 assert_stat("0.1", 0.1)
 assert_stat(".1", 0.1)
 assert_stat(".5", 0.5)
+
+-- scientific notation
+assert_stat("0.5E-3", 0.0005)
+assert_stat("0.5e-3", 0.0005)
+assert_stat(".5e-3", 0.0005)
+assert_stat("10e3", 10000.0)
+assert_stat("10E3", 10000.0)

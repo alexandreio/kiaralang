@@ -115,3 +115,12 @@ assert_code([[
         return two_gt_one?
     }
 ]], 1)
+
+-- FINAL PROJECT: Empty Statement
+assert_code([[
+    function main() {
+        {};;;
+        ;;;;
+        return 0
+    }
+]], 0)

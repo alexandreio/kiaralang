@@ -227,6 +227,10 @@ function Compiler:codeFunction(ast)
         end
     end
 
+    if ast.name == "main" and #ast.params > 0 then
+        error("main function must have no parameters")
+    end
+
     self.funcs[ast.name] = {foward = true}
 
     if ast.body then

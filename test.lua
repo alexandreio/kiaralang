@@ -53,6 +53,9 @@ assert_stat("1 - 1", 0)
 assert_stat("2 * 2", 4)
 assert_stat("2 / 2", 1)
 assert_stat("1 + -1", 0)
+
+-- FINAL PROJECT: Adding more operators - part 1
+
 assert_stat("4 % 2", 0)
 assert_stat("4 % 3", 1)
 assert_stat("3 ^ 3", 27)
@@ -62,3 +65,22 @@ assert_stat("3 ^ 3 ^3", 7625597484987)
 assert_stat("0x1", 1)
 assert_stat("0xc0ffee", 12648430)
 assert_stat("0Xc0ffee", 12648430)
+
+-- FINAL PROJECT: Adding more operators - part 2
+assert_stat("-1", -1)
+assert_stat("- -1", 1)
+assert_stat("-(1+2)", -3)
+
+assert_stat("(1 < 2)", 1)
+assert_stat("(1 > 2)", 0)
+assert_stat("(1 >= 1)", 1)
+assert_stat("(1 >= 0)", 1)
+assert_stat("(1 >= 3)", 0)
+
+assert_stat("(1 <= 2)", 1)
+assert_stat("(2 <= 2)", 1)
+assert_stat("(5 <= 2)", 0)
+assert_stat("(1 == 1)", 1)
+assert_stat("(1 == 2)", 0)
+assert_stat("(1 != 2)", 1)
+assert_stat("(1 != 1)", 0)

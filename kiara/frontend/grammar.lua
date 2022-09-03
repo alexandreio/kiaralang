@@ -7,11 +7,7 @@ local function node(tag, ...)
     local labels = table.pack(...)
     local params = table.concat(labels, ", ")
     local fields = string.gsub(params, "(%w+)", "%1 = %1")
-    print(pt.pt(labels))
-    print(pt.pt(params))
-    print(pt.pt(fields))
-    
-    print("---")
+
     local code = string.format(
         "return function (%s) return {tag = '%s', %s} end",
         params, tag, fields
@@ -106,8 +102,8 @@ local function Rw(t)
     return t * - AlphaNum * Space
 end
 
-local HexDigit = lpeg.R("09") ^ 0 * lpeg.R("AF", "af") ^ 0
-local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * HexDigit
+local HexDigit = lpeg.R("09") + lpeg.R("AF", "af") 
+local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * (HexDigit ^ 1)
 
 local FloatNumber = lpeg.R("09") ^ 1 * lpeg.P(".") * lpeg.R("09") ^ 1
 

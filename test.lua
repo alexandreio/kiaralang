@@ -57,3 +57,8 @@ assert_stat("4 % 2", 0)
 assert_stat("4 % 3", 1)
 assert_stat("3 ^ 3", 27)
 assert_stat("3 ^ 3 ^3", 7625597484987)
+
+-- hexadecimal numbers
+assert_stat("0x1", 1)
+assert_stat("0xc0ffee", 12648430)
+assert_stat("0Xc0ffee", 12648430)

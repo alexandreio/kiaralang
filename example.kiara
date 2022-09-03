@@ -1,5 +1,5 @@
-function foo() {
-    return 10;
+function foo(x, y, z) {
+    foo(10, 20, 30)
 }
 
 function main() {

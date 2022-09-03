@@ -62,12 +62,14 @@ function Compiler:fixJmp2here(jmp)
 end
 
 function Compiler:codeCall(ast)
-    print(">>" .. ast.fname)
-    print(pt.pt(ast))
     local func = self.funcs[ast.fname]
 
     if not func then
         error("undefined function " .. ast.fname)
+    end
+    
+    if #func.params ~= #ast.args then
+        error("wrong number of arguments to " .. ast.fname)
     end
 
     if func.code ~= nil then
@@ -210,8 +212,6 @@ function Compiler:codeStat(ast)
 end
 
 function Compiler:codeFunction(ast)
-    print(pt.pt(ast))
-    print("888888888888888")
     local code = {}
     if self.funcs[ast.name] ~= nil and self.funcs[ast.name].foward == nil then
         error("function '" .. ast.name .. "' already declared")
@@ -230,7 +230,7 @@ function Compiler:codeFunction(ast)
     self.funcs[ast.name] = {foward = true}
 
     if ast.body then
-        self.funcs[ast.name] = {code = code, foward = nil}
+        self.funcs[ast.name] = {code = code, foward = nil, params=ast.params}
         self.code = code
         self:codeStat(ast.body)
         self:addCode("push")

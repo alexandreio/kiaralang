@@ -202,6 +202,7 @@ assert_code([[
     }
 ]], 50)
 
+-- FINAL PROJECT: print arrays
 assert_code([[
     function main() {
         var a = new[10];
@@ -213,3 +214,20 @@ assert_code([[
         return a[5] + a[2]
     }
 ]], 51)
+
+
+-- FINAL PROJECT: Multidimensional new
+assert_code([[
+    function main() {       
+        var d = new[3][5][2];
+
+        d[2][1][1] = 6000;
+        d[3][1][1] = 4000;
+        @ (d[2][1][1]);
+        @ (d[3][1][1]);
+        
+
+        return d[2][1][1]
+
+    }
+]], 6000, true)

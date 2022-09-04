@@ -15,12 +15,7 @@ local function syntaxError(input, max)
         end
     end
 
-    print("syntax error:")
-
-    print("line: " .. line)
-    print("col: " .. col)
-    print(string.sub(input, max - 5, max - 1) .. string.sub(input, max, max + 11))
-    print(string.rep(" ", col) .. "^--" )
+    error("syntax error on line: " .. line .. " col: " .. col)
 end
 
 function parser.parse(input)

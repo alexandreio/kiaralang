@@ -6,6 +6,7 @@ local backend_build = require("kiara.backend.build")
 
 
 local function run_code(input, debug)
+    compiler:clean()
 
     if debug == true then
         print("input:", input)
@@ -34,7 +35,6 @@ local function run_code(input, debug)
         print(stack[1])
     end
 
-    compiler:clean()
     return stack[1]
 end
 
@@ -146,3 +146,11 @@ assert_code_error([[
         var a = b + 1;
     }
 ]], "variable b is not defined")
+
+-- FINAL PROJECT: Error messages with line numbers
+assert_code_error([[
+    function main() {
+        @ (2)
+        return 0
+    }
+]], "syntax error on line: 5 col: 33")

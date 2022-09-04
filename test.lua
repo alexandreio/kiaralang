@@ -207,6 +207,8 @@ assert_code([[
         var a = new[10];
         a[5] = 50;
         a[2] = 1;
+        
+        @ (a);
 
         return a[5] + a[2]
     }

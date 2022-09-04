@@ -58,7 +58,7 @@ function build.run(code, mem, stack, top)
                         io.write(", ")
                     end
                 end
-                io.write("]")
+                io.write("]\n")
                 
 
             else

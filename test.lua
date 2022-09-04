@@ -167,3 +167,7 @@ assert_code([[
         return a
     }
 ]], 1)
+
+-- FINAL PROJECT:  ‘not’ operator
+assert_stat("!(1 > 2)", 1)
+assert_stat("!!(1 > 2)", 0)

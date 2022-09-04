@@ -180,13 +180,13 @@ function build.run(code, mem, stack, top)
             array[index] = value
             top = top - 3
         elseif code[pc] == "jmp" then
-            local index = stack[top]
             pc = code[pc + 1]
         elseif code[pc] == "jmpZ" then
             pc = pc + 1
             if stack[top] == 0 or stack[top] == nil then
                 pc = code[pc]
             end
+            top = top - 1
         else error("unknow instruction: " .. code[pc])
         end
         pc = pc + 1

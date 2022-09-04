@@ -168,6 +168,27 @@ assert_code([[
     }
 ]], 1)
 
--- FINAL PROJECT:  ‘not’ operator
+-- FINAL PROJECT: ‘not’ operator
 assert_stat("!(1 > 2)", 1)
 assert_stat("!!(1 > 2)", 0)
+
+-- FINAL PROJECT: ‘elseif’
+assert_code([[
+    function main() {
+        if 0 {return  1} else {return 2}
+    }
+]], 2)
+
+assert_code([[
+    function main() {
+        var a = 3;
+        var b = 0;
+        if (a > 4) { b = 5 }
+        elseif (a == 2) {b = 200000000}
+        elseif (a == 3) {b = 300000000}
+        else { b = 10 };
+
+        return b
+    }
+]], 300000000)
+

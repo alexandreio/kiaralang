@@ -154,3 +154,16 @@ assert_code_error([[
         return 0
     }
 ]], "syntax error on line: 5 col: 33")
+
+
+-- FINAL PROJECT: Block comments
+assert_code([[
+    function main() {
+        #{
+            this is a 
+            block comment
+        #}
+        var a = 1;
+        return a
+    }
+]], 1)

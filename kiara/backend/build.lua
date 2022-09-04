@@ -159,7 +159,6 @@ function build.run(code, mem, stack, top)
             local array = stack[top - 1]
             local index = stack[top]
             
-            -- print(">> " .. pt.pt(array))
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
@@ -171,7 +170,6 @@ function build.run(code, mem, stack, top)
             local index = stack[top - 1]
             local value = stack[top]
             
-            print(">> " .. array.size)
 
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)

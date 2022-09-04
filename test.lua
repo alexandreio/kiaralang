@@ -192,3 +192,22 @@ assert_code([[
     }
 ]], 300000000)
 
+-- arrays
+assert_code([[
+    function main() {
+        var a = new[10];
+        a[5] = 50;
+
+        return a[5]
+    }
+]], 50)
+
+assert_code([[
+    function main() {
+        var a = new[10];
+        a[5] = 50;
+        a[2] = 1;
+
+        return a[5] + a[2]
+    }
+]], 51)

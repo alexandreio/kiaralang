@@ -63,7 +63,6 @@ end
 
 local function foldNew(lst)
     if #lst == 1 then
-        print(">>" .. lst[1].val)
         return {tag = "new", size = {tag="number", val=lst[1].val}}
     end
 

@@ -13,6 +13,7 @@ local function recursiveAllocator(d, depth)
         return array
     end
 
+
     for i = 1, current_size do
         array[i] = recursiveAllocator(d, depth + 1)
     end
@@ -156,20 +157,43 @@ function build.run(code, mem, stack, top)
             -- print("--------------------")
             -- print("\n")
         elseif code[pc] == "getarray" then
+            local mult = false;
             local array = stack[top - 1]
+            if type(array) ~= "table" then
+                array = stack[top - 2]
+                mult = true;
+            end
+            
+            -- print(pt.pt(stack))
+            -- print(top)
             local index = stack[top]
+            -- print(index)
+            -- print("----------------------------")
+
             
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
+            
+            local n = 1;
+            if mult then
+                n = 2;
+            end
 
+            
+            print(">>" .. top - 1)
+            print(pt.pt(stack[top - 1]))
+            print(pt.pt(array))
+            print(index)
+            -- print("----------------------------")
+            -- print("----------------------------")
             stack[top - 1] = array[index]
             top = top - 1
         elseif code[pc] == "setarray" then
             local array = stack[top - 2]
             local index = stack[top - 1]
             local value = stack[top]
-            
+    
 
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)

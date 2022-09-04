@@ -1,3 +1,4 @@
+
 local pt = require("pt")
 local parser = require("kiara.frontend.parser")
 local compiler = require("kiara.backend.compiler")
@@ -40,6 +41,11 @@ end
 local function assert_code(input, expected, debug)
     local result = run_code(input, debug)
     assert(result == expected)
+end
+
+local function assert_code_error(input, expected, debug)
+    local _, err = pcall(run_code, input, debug)
+    assert(string.match(err, expected) == expected)
 end
 
 local function assert_stat(input, expected, debug)
@@ -133,3 +139,10 @@ assert_code([[
         return 0
     }
 ]], 0)
+
+
+assert_code_error([[
+    function main() {
+        var a = b + 1;
+    }
+]], "variable b is not defined")

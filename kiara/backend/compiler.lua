@@ -1,4 +1,5 @@
 local pt = require("pt")
+
 local ops = {
     ["+"] = "add",
     ["-"] = "sub",
@@ -22,6 +23,9 @@ function Compiler:addCode(op)
 end
 
 function Compiler:var2num(id)
+    if self.vars[id] == nil then
+        error("variable " .. id .. " is not defined")
+    end
     local num = self.vars[id]
     if not num then
         num = self.nvars + 1

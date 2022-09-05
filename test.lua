@@ -275,6 +275,31 @@ assert_code([[
     }
 ]], 42)
 
+--  Checking redeclaration of variables
+assert_code([[
+    function foo() {
+        var bar = 11;
+        return bar;
+    }
+        
+         
+    function main () {
+        return foo()
+    }
+]], 11)
+
+
+assert_code_error([[
+    function foo() {
+        var bar = 10;
+        var bar = 11;
+    }
+    
+     
+    function main () {
+        return foo()
+    }
+]], "local variable: bar already declared locally")
 
     
 -- FINAL PROJECT: Multidimensional new

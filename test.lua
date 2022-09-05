@@ -445,6 +445,36 @@ assert_code_error([[
           
 ]], "function: odd not declared")
 
+
+assert_code_error([[
+    function odd();
+
+    function odd() {
+        return 2;
+    }
+    
+    function odd() {
+        return 5;
+    }
+    
+    function even () {
+        var n = 5;
+        if n {
+            return odd()
+        } else {
+            return 1
+        }
+    }
+    
+    
+    function main () {
+        var n = 10;
+        return even()
+    }
+        
+            
+]], "function 'odd' already declared")
+
 -- assert_stat("1 and 0", 0)
 
 -- FINAL PROJECT: Multidimensional new

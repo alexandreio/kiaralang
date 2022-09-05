@@ -193,6 +193,11 @@ function build.run(code, mem, stack, top)
             else
                 top = top - 1
             end
+        elseif code[pc] == "jmpNZP" then
+            pc = pc + 1
+            if stack[top] == 0 then
+                top = top - 1
+            end
         else error("unknow instruction: " .. code[pc])
         end
         pc = pc + 1

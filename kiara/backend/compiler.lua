@@ -121,6 +121,11 @@ function Compiler:codeExp(ast)
         local jmp = self:codeJmp("jmpZP")
         self:codeExp(ast.exp[2])
         self:fixJmp2here(jmp)
+    elseif ast.tag == "or1" then
+        self:codeExp(ast.exp[1])
+        local jmp = self:codeJmp("jmpNZP")
+        self:codeExp(ast.exp[2])
+        self:fixJmp2here(jmp)
     elseif ast.tag == "indexed" then
         self:codeExp(ast.array)
         self:codeExp(ast.index)

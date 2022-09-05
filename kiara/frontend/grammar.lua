@@ -187,7 +187,7 @@ local Grammar = lpeg.P {
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
     Lhs = lpeg.Ct(Var * (T"[" * Exp * T"]")^0) / foldIndex,
     LogicalAnd = lpeg.Ct(Factor * ( Rw"and" * Factor)^1) / node("and1", "exp"),
-    -- LogicalOr = lpeg.Ct(Factor * (Rw"or" * Factor)^ -1) / node("and1", "exp"),
+    LogicalOr = lpeg.Ct(Factor * ( Rw"or" * Factor)^1) / node("or1", "exp"),
     Call = ID * T"(" * Args * T")" / node("call", "fname", "args"),
     Args = lpeg.Ct((Exp * (T"," * Exp)^0)^-1),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
@@ -197,7 +197,7 @@ local Grammar = lpeg.P {
             + T"(" * Comp * T")" 
             + Call
             + Lhs,
-    Logical = Space * lpeg.Ct(LogicalAnd + Factor) / foldBin,
+    Logical = Space * lpeg.Ct(LogicalAnd + LogicalOr + Factor) / foldBin,
     Pow = Space * lpeg.Ct(Logical * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,

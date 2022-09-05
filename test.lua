@@ -371,6 +371,12 @@ assert_stat("0 and 1", 1)
 assert_stat("5 and 10", 10)
 assert_stat("10 and 5", 5)
 assert_stat("10 and 10", 10)
+--  or
+assert_stat("1 or 0", 1)
+assert_stat("0 or 1", 1)
+assert_stat("5 or 10", 5)
+assert_stat("10 or 5", 10)
+assert_stat("10 or 10", 10)
 
 -- assert_stat("1 and 0", 0)
 

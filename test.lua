@@ -192,6 +192,33 @@ assert_code([[
     }
 ]], 300000000)
 
+assert_code([[
+    function main() {
+        var a = 2;
+        var b = 0;
+        if (a > 4) { b = 5 }
+        elseif (a == 2) {b = 200000000}
+        elseif (a == 3) {b = 300000000}
+        else { b = 10 };
+
+        return b
+    }
+]], 200000000)
+
+assert_code([[
+    function main() {
+        var a = 1;
+        var b = 0;
+        if (a > 4) { b = 5 }
+        elseif (a == 2) {b = 200000000}
+        elseif (a == 3) {b = 300000000}
+        else { b = 10 };
+
+        return b
+    }
+]], 10)
+
+
 -- arrays
 assert_code([[
     function main() {
@@ -217,17 +244,17 @@ assert_code([[
 
 
 -- FINAL PROJECT: Multidimensional new
-assert_code([[
-    function main() {       
-        var d = new[3][5][2];
+-- assert_code([[
+--     function main() {       
+--         var d = new[3][5][2];
 
-        d[2][1][1] = 6000;
-        d[3][1][1] = 4000;
-        @ (d[2][1][1]);
-        @ (d[3][1][1]);
+--         d[2][1][1] = 6000;
+--         d[3][1][1] = 4000;
+--         @ (d[2][1][1]);
+--         @ (d[3][1][1]);
         
 
-        return d[2][1][1]
+--         return d[2][1][1]
 
-    }
-]], 6000, true)
+--     }
+-- ]], 6000, true)

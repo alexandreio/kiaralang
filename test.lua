@@ -326,6 +326,23 @@ assert_code_error([[
     }
 ]], "param bar already declared")
 
+
+-- Check for Main
+assert_code([[
+    function main () {
+        var foo = 42;
+        return foo
+    }
+]], 42)
+
+
+assert_code_error([[
+    function main (bar) {
+        var foo = 42;
+        return foo
+    }
+]], "main function must have no parameters")
+
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[
 --     function main() {       

@@ -33,13 +33,15 @@ function build.run(code, mem, stack, top)
     while true do
         --[[
             io.write("--> ")
-            for i = 1, top do io.write(stack[i], " ") end
+            for i = 1, top do io.write(pt.pt(stack[i]), " ") end
             io.write("\n", code[pc], "\n")
         -- ]]
         if code[pc] == "ret" then
-            local n = code[pc + 1]
+            local n = code[pc + 1]    -- number of active local variables
             stack[top - n] = stack[top]
-            return top - n
+            top = top - n
+            string.format("ret %d\n", n)
+            return top
         elseif code[pc] == "call" then
             pc = pc + 1
             local code = code[pc]
@@ -139,12 +141,7 @@ function build.run(code, mem, stack, top)
             local size = stack[top]
             stack[top] = {size=size}
         elseif code[pc] == "multnewarray" then
-            -- print("\n")
-            -- print("--------------------")
-
             local lvls = stack[top]
-            -- print(lvls)
-            -- print(pt.pt(stack))
             
             local nd = {}
             for i = 1, lvls do
@@ -152,41 +149,20 @@ function build.run(code, mem, stack, top)
             end
             
             local multarr = ndarray(nd)
-            -- print(pt.pt(multarr))
+            print(">>>" .. lvls)
             stack[top] = multarr
-            -- print("--------------------")
-            -- print("\n")
+
         elseif code[pc] == "getarray" then
-            local mult = false;
             local array = stack[top - 1]
             if type(array) ~= "table" then
                 array = stack[top - 2]
-                mult = true;
             end
             
-            -- print(pt.pt(stack))
-            -- print(top)
             local index = stack[top]
-            -- print(index)
-            -- print("----------------------------")
-
-            
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
             
-            local n = 1;
-            if mult then
-                n = 2;
-            end
-
-            
-            print(">>" .. top - 1)
-            print(pt.pt(stack[top - 1]))
-            print(pt.pt(array))
-            print(index)
-            -- print("----------------------------")
-            -- print("----------------------------")
             stack[top - 1] = array[index]
             top = top - 1
         elseif code[pc] == "setarray" then
@@ -209,6 +185,14 @@ function build.run(code, mem, stack, top)
                 pc = code[pc]
             end
             top = top - 1
+        elseif code[pc] == "jmpZP" then
+            pc = pc + 1
+            if stack[top] == 0 then
+                pc = code[pc]
+                stack[top] = code[pc]
+            else
+                top = top - 1
+            end
         else error("unknow instruction: " .. code[pc])
         end
         pc = pc + 1

@@ -85,7 +85,11 @@ local AlphaNum = Alpha + Digit + Underscore + QuestionMark
 
 local Space = lpeg.V "Space"
 
-local reserved = {"return", "if", "elseif", "else", "while", "new", "function", "var"}
+local reserved = {
+    "return", "if", "elseif", "else", "while", "new", "function",
+    "var", "and", "or"
+}
+
 local excluded = lpeg.P(false)
 for i = 1, #reserved do
     excluded = excluded +  reserved[i]
@@ -148,6 +152,9 @@ local Else = lpeg.V"Else"
 local FuncDec = lpeg.V"FuncDec"
 local Params = lpeg.V"Params"
 local Args = lpeg.V"Args"
+local LogicalAnd = lpeg.V"LogicalAnd"
+local LogicalOr = lpeg.V"LogicalOr"
+local Logical = lpeg.V"Logical"
 
 grammar.maxmatch = 0
 grammar.currentline = 1
@@ -179,16 +186,19 @@ local Grammar = lpeg.P {
     If = Rw"if" * Exp * Block * (Else ^ -1) / node("if1", "cond", "th", "el"),
     Else = (Rw"else" * Block) + (Rw"elseif" * Exp * Block * (Else ^ -1)) / node("if1", "cond", "th", "el"),
     Lhs = lpeg.Ct(Var * (T"[" * Exp * T"]")^0) / foldIndex,
+    LogicalAnd = lpeg.Ct(Factor * ( Rw"and" * Factor)^1) / node("and1", "exp"),
+    -- LogicalOr = lpeg.Ct(Factor * (Rw"or" * Factor)^ -1) / node("and1", "exp"),
     Call = ID * T"(" * Args * T")" / node("call", "fname", "args"),
     Args = lpeg.Ct((Exp * (T"," * Exp)^0)^-1),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
             + Not 
             + Minus 
-            + Numeral 
+            + Numeral
             + T"(" * Comp * T")" 
             + Call
             + Lhs,
-    Pow = Space * lpeg.Ct(Factor * (opE * Pow) ^ -1) / foldBin,
+    Logical = Space * lpeg.Ct(LogicalAnd + Factor) / foldBin,
+    Pow = Space * lpeg.Ct(Logical * (opE * Pow) ^ -1) / foldBin,
     Term = Space * lpeg.Ct(Pow * (opM * Pow) ^ 0) / foldBin,
     Exp = Space * lpeg.Ct(Term * (opA * Term) ^ 0) / foldBin,
     Comp = Space * lpeg.Ct(Exp * (opC * Exp) ^ 0) / foldBin,

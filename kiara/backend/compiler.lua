@@ -116,6 +116,11 @@ function Compiler:codeExp(ast)
             self:addCode("load")
             self:addCode(self:var2num(ast.var))
         end
+    elseif ast.tag == "and1" then
+        self:codeExp(ast.exp[1])
+        local jmp = self:codeJmp("jmpZP")
+        self:codeExp(ast.exp[2])
+        self:fixJmp2here(jmp)
     elseif ast.tag == "indexed" then
         self:codeExp(ast.array)
         self:codeExp(ast.index)

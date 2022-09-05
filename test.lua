@@ -13,6 +13,7 @@ local function run_code(input, debug)
         print("")
     end
 
+    -- print(input)
     local ast = parser.parse(input)
     if debug == true then
         print("ast:")
@@ -361,6 +362,17 @@ assert_code_error([[
         return a[11]
     }
 ]], "index out of range. max array size: 10")
+
+
+-- FINAL PROJECT: Logical operators
+--  and
+assert_stat("1 and 0", 0)
+assert_stat("0 and 1", 1)
+assert_stat("5 and 10", 10)
+assert_stat("10 and 5", 5)
+assert_stat("10 and 10", 10)
+
+-- assert_stat("1 and 0", 0)
 
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[

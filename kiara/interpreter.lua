@@ -42,11 +42,11 @@ local function run(params, debug)
     backend_build.run(code, mem, stack, 0)
     if debug == true then
         print("\nstack:")
-        print(stack[1])
+        print(pt.pt(stack[1]))
     end
 
     return stack[1]
 end
 
 
-run(params, debug)
+run(params, true)

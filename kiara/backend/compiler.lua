@@ -238,7 +238,7 @@ function Compiler:codeFunction(ast)
     for i = 1, #ast.params do
         local cur_param = ast.params[i]
         if params[cur_param] ~= nil then
-            error("param " .. cur_param .. "already declared")
+            error("param " .. cur_param .. " already declared")
         else params[cur_param] = true
             
         end

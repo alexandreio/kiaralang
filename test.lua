@@ -301,7 +301,31 @@ assert_code_error([[
     }
 ]], "local variable: bar already declared locally")
 
-    
+
+-- Checking redeclaration of variables and parameters
+assert_code([[
+    function foo(bar) {
+        return bar;
+    }
+        
+         
+    function main () {
+        return foo(15)
+    }
+]], 15)
+
+
+assert_code_error([[
+    function foo(bar, bar) {
+        return bar;
+    }
+        
+         
+    function main () {
+        return foo(15, 16)
+    }
+]], "param bar already declared")
+
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[
 --     function main() {       

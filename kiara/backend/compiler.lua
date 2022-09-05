@@ -81,7 +81,7 @@ function Compiler:codeCall(ast)
     end
     
     local args = ast.args
-    if #func.params ~= #args then
+    if func.params ~= nil and (#func.params ~= #args) then
         error("wrong number of arguments to " .. ast.fname)
     end
 
@@ -92,6 +92,8 @@ function Compiler:codeCall(ast)
 
         self:addCode("call")
         self:addCode(func.code)
+    else
+        error("function: " .. ast.fname .. " not declared")
     end
 end
 

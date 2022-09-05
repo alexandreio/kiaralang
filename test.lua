@@ -378,6 +378,73 @@ assert_stat("5 or 10", 5)
 assert_stat("10 or 5", 10)
 assert_stat("10 or 10", 10)
 
+-- wrong number of arguments
+assert_code([[
+    function foo(bar) {
+        return bar + 1;
+    }
+    
+    function main () {
+        return foo(5);
+    }    
+]], 6)
+
+assert_code_error([[
+    function foo(bar) {
+        return bar + 1;
+    }
+    
+    function main () {
+        return foo(5, 6);
+    }    
+]], "wrong number of arguments to foo")
+
+
+-- FINAL PROJECT: Forward Declarations
+assert_code([[
+    function odd();
+
+    function odd() {
+        return 2;
+    }
+    
+    function even () {
+        var n = 5;
+        if n {
+            return odd()
+        } else {
+            return 1
+        }
+    }
+    
+    
+    function main () {
+        var n = 10;
+        return even()
+    }
+          
+]], 2)
+
+assert_code_error([[
+    function odd();
+
+    function even () {
+        var n = 5;
+        if n {
+            return odd()
+        } else {
+            return 1
+        }
+    }
+        
+        
+    function main () {
+        var n = 10;
+        return even()
+    }
+          
+]], "function: odd not declared")
+
 -- assert_stat("1 and 0", 0)
 
 -- FINAL PROJECT: Multidimensional new

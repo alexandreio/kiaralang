@@ -28,7 +28,7 @@ local function run_code(input, debug)
 
     
     local stack = {}
-    local mem = { k0 = 0, k1 = 1, k10 = 10 }
+    local mem = { k0 = 0, k1 = 1, k11 = 10 }
     backend_build.run(code, mem, stack, 0)
     if debug == true then
         print("\nstack:")
@@ -342,6 +342,25 @@ assert_code_error([[
         return foo
     }
 ]], "main function must have no parameters")
+
+
+-- Adding checks to the interpreter
+assert_code([[
+    function main () {
+        var a = new[10];
+        a[10] = 9;
+        return a[10]
+    }
+]], 9)
+
+
+assert_code_error([[
+    function main () {
+        var a = new[10];
+        a[11] = 9;
+        return a[11]
+    }
+]], "index out of range. max array size: 10")
 
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[

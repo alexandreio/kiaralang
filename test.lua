@@ -243,6 +243,40 @@ assert_code([[
 ]], 51)
 
 
+--  Name Conflicts Among Functions
+assert_code_error([[
+    function foo() {
+        return 1
+    }
+
+    function foo() {
+        return 2
+    }
+
+    function main() {
+        return foo()
+    }
+]], "function 'foo' already declared")
+
+
+--  Optional initialization for local variables
+assert_code([[
+    function main () {
+        var foo;
+        return foo
+    }
+]], 0)
+
+assert_code([[
+    function main () {
+        var foo;
+        foo = 42;
+        return foo
+    }
+]], 42)
+
+
+    
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[
 --     function main() {       
@@ -258,3 +292,4 @@ assert_code([[
 
 --     }
 -- ]], 6000, true)
+

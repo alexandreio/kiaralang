@@ -19,15 +19,15 @@ local function run_code(input, debug)
         print("ast:")
         print(pt.pt(ast))
     end
-    
-    
+
+
     local code = compiler:compile(ast)
     if debug == true then
         print("\ncode:")
         print(pt.pt(code))
     end
 
-    
+
     local stack = {}
     local mem = { k0 = 0, k1 = 1, k11 = 10 }
     backend_build.run(code, mem, stack, 0)
@@ -161,7 +161,7 @@ assert_code_error([[
 assert_code([[
     function main() {
         #{
-            this is a 
+            this is a
             block comment
         #}
         var a = 1;
@@ -236,7 +236,7 @@ assert_code([[
         var a = new[10];
         a[5] = 50;
         a[2] = 1;
-        
+
         @ (a);
 
         return a[5] + a[2]
@@ -282,8 +282,8 @@ assert_code([[
         var bar = 11;
         return bar;
     }
-        
-         
+
+
     function main () {
         return foo()
     }
@@ -295,8 +295,8 @@ assert_code_error([[
         var bar = 10;
         var bar = 11;
     }
-    
-     
+
+
     function main () {
         return foo()
     }
@@ -308,8 +308,8 @@ assert_code([[
     function foo(bar) {
         return bar;
     }
-        
-         
+
+
     function main () {
         return foo(15)
     }
@@ -320,8 +320,8 @@ assert_code_error([[
     function foo(bar, bar) {
         return bar;
     }
-        
-         
+
+
     function main () {
         return foo(15, 16)
     }
@@ -383,20 +383,20 @@ assert_code([[
     function foo(bar) {
         return bar + 1;
     }
-    
+
     function main () {
         return foo(5);
-    }    
+    }
 ]], 6)
 
 assert_code_error([[
     function foo(bar) {
         return bar + 1;
     }
-    
+
     function main () {
         return foo(5, 6);
-    }    
+    }
 ]], "wrong number of arguments to foo")
 
 
@@ -407,7 +407,7 @@ assert_code([[
     function odd() {
         return 2;
     }
-    
+
     function even () {
         var n = 5;
         if n {
@@ -416,13 +416,13 @@ assert_code([[
             return 1
         }
     }
-    
-    
+
+
     function main () {
         var n = 10;
         return even()
     }
-          
+
 ]], 2)
 
 assert_code_error([[
@@ -436,13 +436,13 @@ assert_code_error([[
             return 1
         }
     }
-        
-        
+
+
     function main () {
         var n = 10;
         return even()
     }
-          
+
 ]], "function: odd not declared")
 
 
@@ -452,11 +452,11 @@ assert_code_error([[
     function odd() {
         return 2;
     }
-    
+
     function odd() {
         return 5;
     }
-    
+
     function even () {
         var n = 5;
         if n {
@@ -465,14 +465,13 @@ assert_code_error([[
             return 1
         }
     }
-    
-    
+
+
     function main () {
         var n = 10;
         return even()
     }
-        
-            
+
 ]], "function 'odd' already declared")
 
 -- test recursion
@@ -484,25 +483,35 @@ assert_code([[
             return 1
         }
     }
-    
+
     function main () {
         return fact(6)
     }
-    
+
 ]], 720)
+
+assert_code([[
+    function foo(a, b, c=20) {
+        return c
+    }
+    
+    function main () {
+        return foo(1, 0)
+    }
+]], 20)
 
 -- assert_stat("1 and 0", 0)
 
 -- FINAL PROJECT: Multidimensional new
 -- assert_code([[
---     function main() {       
+--     function main() {
 --         var d = new[3][5][2];
 
 --         d[2][1][1] = 6000;
 --         d[3][1][1] = 4000;
 --         @ (d[2][1][1]);
 --         @ (d[3][1][1]);
-        
+
 
 --         return d[2][1][1]
 

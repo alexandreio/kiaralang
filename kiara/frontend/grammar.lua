@@ -151,6 +151,7 @@ local If = lpeg.V"If"
 local Else = lpeg.V"Else"
 local FuncDec = lpeg.V"FuncDec"
 local Params = lpeg.V"Params"
+local DefaultParam = lpeg.V"DefaultParam"
 local Args = lpeg.V"Args"
 local LogicalAnd = lpeg.V"LogicalAnd"
 local LogicalOr = lpeg.V"LogicalOr"
@@ -168,9 +169,10 @@ local comment =  blockComment + simpleComment
 local Grammar = lpeg.P {
     "Prog",
     Prog = Space * lpeg.Ct(FuncDec^1)  * -1,
-    FuncDec = (Rw"function" * ID * T"(" * Params * T")" * Block
-            + Rw"function" * ID * T"(" * Params * T");") / node("function", "name", "params", "body"),
-    Params = lpeg.Ct((ID * (T"," * ID)^0)^-1),
+    FuncDec = (Rw"function" * ID * T"(" * Params * DefaultParam * T")" * Block
+            + Rw"function" * ID * T"(" * Params * DefaultParam * T");") / node("function", "name", "params", "default", "body"),
+    Params = lpeg.Ct((ID * (T"," * ID * -(#T"="))^0)^-1),
+    DefaultParam = lpeg.Ct((T"," * ID * T"=" * Exp)^0),
     Stats = Stat *(T";" * Stats) ^ -1 / nodeSeq,
     Block = T"{" * Stats * T";"^-1 * T"}" / node("block", "body"),
     Stat = T";"

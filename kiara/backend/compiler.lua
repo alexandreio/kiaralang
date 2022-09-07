@@ -57,6 +57,15 @@ function Compiler:findLocal(name)
         end
     end
 
+    params = self.default_params
+    -- print("...." .. #params)
+        for i = 1, #params do
+        if name == params[i] then
+            return -(#params - 2)
+        end
+    end
+
+
     return false
 end
 
@@ -92,6 +101,20 @@ function Compiler:codeCall(ast)
         for i = 1, #args do
             self:codeExp(args[i])
         end
+
+        local default_params = func.default_params
+        if #default_params == 2 then
+            self:codeExp(default_params[2])
+            self.default_params = default_params[2]
+        end
+
+        -- print("----------------------------")
+        -- print(pt.pt(func.default_params[2].val))
+        -- for i = 2, #func.default_params, 2 do
+        --     print(#func.default_params[i])
+        -- end
+        -- -- print(pt.pt())
+        -- print("***********************")
 
         self:addCode("call")
         self:addCode(func.code)
@@ -219,7 +242,12 @@ function Compiler:codeStat(ast)
     elseif ast.tag == "ret" then
         self:codeExp(ast.exp)
         self:addCode("ret")
-        self:addCode(#self.locals + #self.params)
+
+        default_len = 0
+        if #self.default_params > 0 then
+            default_len = 1
+        end
+        self:addCode(#self.locals + #self.params + default_len)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
@@ -254,6 +282,7 @@ function Compiler:codeFunction(ast)
         error("function '" .. ast.name .. "' already declared")
     end
 
+
     local params = {}
     for i = 1, #ast.params do
         local cur_param = ast.params[i]
@@ -271,14 +300,19 @@ function Compiler:codeFunction(ast)
     self.funcs[ast.name] = {foward = true}
 
     if ast.body then
-        self.funcs[ast.name] = {code = code, foward = nil, params=ast.params}
+        self.funcs[ast.name] = {code = code, foward = nil, params=ast.params, default_params=ast.default}
         self.code = code
         self.params = ast.params
+        self.default_params=ast.default
         self:codeStat(ast.body)
         self:addCode("push")
         self:addCode(0)
         self:addCode("ret")
-        self:addCode(#self.locals + #self.params)
+        default_len = 0
+        if #self.default_params > 0 then
+            default_len = 1
+        end
+        self:addCode(#self.locals + #self.params + default_len)
     end
 end
 

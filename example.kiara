@@ -1,11 +1,8 @@
-function fact(n) {
-    if n {
-        return n * fact(n - 1)
-    } else {
-        return 1
-    }
+function foo(a, b, c=20) {
+    @ (c);
+    return c
 }
 
 function main () {
-    return fact(6)
+    return foo(1, 0)
 }

@@ -26,6 +26,7 @@ function Compiler:var2num(id)
     if self.vars[id] == nil then
         error("variable " .. id .. " is not defined")
     end
+
     local num = self.vars[id]
     if not num then
         num = self.nvars + 1
@@ -40,9 +41,10 @@ function Compiler:currentPosition()
     return #self.code
 end
 
-function Compiler:findLocal(name) 
+function Compiler:findLocal(name)
     local loc = self.locals
     for i = #loc, 1, -1 do
+
         if name == loc[i] then
             return i
         end
@@ -55,7 +57,7 @@ function Compiler:findLocal(name)
         end
     end
 
-    return nil
+    return false
 end
 
 function Compiler:codeJmpB(op, label)
@@ -79,8 +81,9 @@ function Compiler:codeCall(ast)
     if not func then
         error("undefined function " .. ast.fname)
     end
-    
+
     local args = ast.args
+
     if func.params ~= nil and (#func.params ~= #args) then
         error("wrong number of arguments to " .. ast.fname)
     end
@@ -114,7 +117,7 @@ function Compiler:codeExp(ast)
         if idx then
             self:addCode("loadL")
             self:addCode(idx)
-        else            
+        else
             self:addCode("load")
             self:addCode(self:var2num(ast.var))
         end
@@ -154,6 +157,7 @@ function Compiler:codeAssgn(ast)
     local lhs = ast.lhs
     if lhs.tag == "variable" then
         self:codeExp(ast.exp)
+
         local idx = self:findLocal(lhs.var)
         if idx then
             self:addCode("storeL")
@@ -174,9 +178,10 @@ end
 function Compiler:codeBlock (ast)
     local oldLevel = #self.locals
     self:codeStat(ast.body)
+
     local diff = #self.locals - oldLevel
     if diff > 0 then
-        for i = 1, diff do
+        for _ = 1, diff do
             table.remove(self.locals)
         end
         self:addCode("pop")
@@ -188,16 +193,18 @@ function Compiler:codeStat(ast)
     if ast.tag == "assgn" then
         self:codeAssgn(ast)
     elseif ast.tag == "local" then
+
         for i = 1, #self.locals do
             if self.locals[i] == ast.name then
                 error("local variable: " .. ast.name .. " already declared locally")
             end
         end
 
+
         if ast.init == nil then
             ast.init = {tag = "number", val = 0}
         end
-        -- print(pt.pt(ast.init))
+
         self:codeExp(ast.init)
         self.locals[#self.locals + 1] = ast.name
     elseif ast.tag == "call" then
@@ -242,6 +249,7 @@ end
 
 function Compiler:codeFunction(ast)
     local code = {}
+
     if self.funcs[ast.name] ~= nil and self.funcs[ast.name].foward == nil then
         error("function '" .. ast.name .. "' already declared")
     end
@@ -252,7 +260,7 @@ function Compiler:codeFunction(ast)
         if params[cur_param] ~= nil then
             error("param " .. cur_param .. " already declared")
         else params[cur_param] = true
-            
+
         end
     end
 
@@ -281,11 +289,13 @@ function Compiler:compile(ast)
     end
 
     local main = self.funcs["main"]
+
     if not main then
         error("no function 'main'")
     end
 
-
+    -- print(">>>>")
+    -- print(pt.pt(main.code))
     return main.code
 end
 

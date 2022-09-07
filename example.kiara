@@ -1,10 +1,11 @@
-function foo(x, y, z) {
-    foo(10, 20, 30)
+function fact(n) {
+    if n {
+        return fact(n) + 1;
+    } else {
+        return 1;
+    }
 }
 
-function main() {
-    var a = 2;
-    a = 15;
-    @ (a);
-    return 2
+function main () {
+    return fact(6)
 }

@@ -39,9 +39,7 @@ function build.run(code, mem, stack, top)
         if code[pc] == "ret" then
             local n = code[pc + 1]    -- number of active local variables
             stack[top - n] = stack[top]
-            top = top - n
-            string.format("ret %d\n", n)
-            return top
+            return top - n
         elseif code[pc] == "call" then
             pc = pc + 1
             local code = code[pc]

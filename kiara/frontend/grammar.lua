@@ -1,4 +1,4 @@
-local pt = require "pt"
+
 local lpeg = require "lpeg"
 
 local grammar = {}
@@ -105,7 +105,7 @@ local function Rw(t)
     return t * - AlphaNum * Space
 end
 
-local HexDigit = lpeg.R("09") + lpeg.R("AF", "af") 
+local HexDigit = lpeg.R("09") + lpeg.R("AF", "af")
 local HexNumber = (lpeg.P("0x") + lpeg.P("0X")) * (HexDigit ^ 1)
 
 local FloatNumber = lpeg.R("09") ^ -1 * lpeg.P(".") * lpeg.R("09") ^ 1
@@ -165,7 +165,7 @@ local simpleComment = '#' * (lpeg.P(1) - '\n') ^ 0
 local blockComment = '#{' * (lpeg.P(1) - '#}')^0  * '#}'
 local comment =  blockComment + simpleComment
 
-local Grammar = lpeg.P { 
+local Grammar = lpeg.P {
     "Prog",
     Prog = Space * lpeg.Ct(FuncDec^1)  * -1,
     FuncDec = (Rw"function" * ID * T"(" * Params * T")" * Block
@@ -191,10 +191,10 @@ local Grammar = lpeg.P {
     Call = ID * T"(" * Args * T")" / node("call", "fname", "args"),
     Args = lpeg.Ct((Exp * (T"," * Exp)^0)^-1),
     Factor = lpeg.Ct( Rw"new" *  (T"[" * Exp * T"]")^0) / foldNew
-            + Not 
-            + Minus 
+            + Not
+            + Minus
             + Numeral
-            + T"(" * Comp * T")" 
+            + T"(" * Comp * T")"
             + Call
             + Lhs,
     Logical = Space * lpeg.Ct(LogicalAnd + LogicalOr + Factor) / foldBin,
@@ -205,7 +205,7 @@ local Grammar = lpeg.P {
     Not = Space * lpeg.Ct(T"!" * Comp ^0) / nodeNot,
     Minus = Space * lpeg.Ct(T"-" * Comp ^0) / nodeMinus,
     Space = (comment + lpeg.S(" \n\t")) ^ 0 *
-        lpeg.P(function(s, p)
+        lpeg.P(function(_, p)
             grammar.currentcol = grammar.currentcol + 1
             grammar.maxmatch = math.max(grammar.maxmatch, p)
             return true

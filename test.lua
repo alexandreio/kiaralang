@@ -475,6 +475,22 @@ assert_code_error([[
             
 ]], "function 'odd' already declared")
 
+-- test recursion
+assert_code([[
+    function fact(n) {
+        if n {
+            return n * fact(n - 1)
+        } else {
+            return 1
+        }
+    }
+    
+    function main () {
+        return fact(6)
+    }
+    
+]], 720)
+
 -- assert_stat("1 and 0", 0)
 
 -- FINAL PROJECT: Multidimensional new

@@ -1,8 +1,8 @@
 function fact(n) {
     if n {
-        return fact(n) + 1;
+        return n * fact(n - 1)
     } else {
-        return 1;
+        return 1
     }
 }
 

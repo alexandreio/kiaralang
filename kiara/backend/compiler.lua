@@ -47,18 +47,13 @@ function Compiler:findLocal(name)
     local params = self.params
     local defaultParams = self.default_params
     local lenDefaultParams = 0
-    if #defaultParams == 2 then
-        lenDefaultParams = 1
-    end
+    if #defaultParams == 2 then lenDefaultParams = 1 end
     for i = 1, #params do
         if name == params[i] then
             return -((#params + lenDefaultParams) - i)
         end
     end
-    if #defaultParams == 2 and defaultParams[1] == name then
-        return 0
-    end
-
+    if #defaultParams == 2 and defaultParams[1] == name then return 0 end
 
     return false
 end
@@ -96,7 +91,7 @@ function Compiler:codeCall(ast)
             self:codeExp(args[i])
         end
 
-        if func.defaultParamsLen and (#args ~= totalParams)then
+        if func.defaultParamsLen and (#args ~= totalParams) then
             -- print("entrouuu")
             self:codeExp(func.default_params[2])
             self.default_params = func.default_params[2]
@@ -204,7 +199,8 @@ function Compiler:codeStat(ast)
 
         for i = 1, #self.locals do
             if self.locals[i] == ast.name then
-                error("local variable: " .. ast.name .. " already declared locally")
+                error("local variable: " .. ast.name ..
+                          " already declared locally")
             end
         end
 
@@ -276,7 +272,7 @@ function Compiler:codeFunction(ast)
         error("main function must have no parameters")
     end
 
-    self.funcs[ast.name] = {foward = true, params={}, defaultParamsLen=0}
+    self.funcs[ast.name] = {foward = true, params = {}, defaultParamsLen = 0}
 
     if #ast.default > 2 then
         error("function " .. ast.name .. " can have only one default argument")
@@ -296,8 +292,6 @@ function Compiler:codeFunction(ast)
         self.params = ast.params
         self.default_params = ast.default
         self.defaultParamsLen = defaultParamsLen
-
-
 
         self:codeStat(ast.body)
         self:addCode("push")

@@ -1,22 +1,15 @@
 local pt = require "pt"
 local build = {}
 
-local function bool_to_number(value)
-    return value and 1 or 0
-  end
+local function bool_to_number(value) return value and 1 or 0 end
 
 local function recursiveAllocator(d, depth)
     local current_size = d[depth]
-    local array = {size=current_size}
+    local array = {size = current_size}
 
-    if depth == #d then
-        return array
-    end
+    if depth == #d then return array end
 
-
-    for i = 1, current_size do
-        array[i] = recursiveAllocator(d, depth + 1)
-    end
+    for i = 1, current_size do array[i] = recursiveAllocator(d, depth + 1) end
 
     return array
 end
@@ -37,7 +30,7 @@ function build.run(code, mem, stack, top)
             io.write("\n", code[pc], "\n")
         -- ]]
         if code[pc] == "ret" then
-            local n = code[pc + 1]    -- number of active local variables
+            local n = code[pc + 1] -- number of active local variables
             stack[top - n] = stack[top]
             top = top - n
             return top
@@ -50,23 +43,19 @@ function build.run(code, mem, stack, top)
                 local arr = stack[top]
 
                 io.write("[")
-                for i=1, arr.size do
+                for i = 1, arr.size do
                     if arr[i] == nil then
                         io.write("nil")
                     else
                         io.write(arr[i])
                     end
-                    if i ~= arr.size then
-                        io.write(", ")
-                    end
+                    if i ~= arr.size then io.write(", ") end
                 end
                 io.write("]\n")
-
 
             else
                 print(stack[top])
             end
-
 
             top = top - 1
         elseif code[pc] == "push" then
@@ -77,7 +66,7 @@ function build.run(code, mem, stack, top)
             pc = pc + 1
             top = top - code[pc]
         elseif code[pc] == "not" then
-            stack[top] = bool_to_number(stack[top]  == 0)
+            stack[top] = bool_to_number(stack[top] == 0)
         elseif code[pc] == "minus" then
             stack[top] = -stack[top]
         elseif code[pc] == "add" then
@@ -138,14 +127,12 @@ function build.run(code, mem, stack, top)
             top = top - 1
         elseif code[pc] == "newarray" then
             local size = stack[top]
-            stack[top] = {size=size}
+            stack[top] = {size = size}
         elseif code[pc] == "multnewarray" then
             local lvls = stack[top]
 
             local nd = {}
-            for i = 1, lvls do
-                nd[i] = stack[i]
-            end
+            for i = 1, lvls do nd[i] = stack[i] end
 
             local multarr = ndarray(nd)
             print(">>>" .. lvls)
@@ -153,9 +140,7 @@ function build.run(code, mem, stack, top)
 
         elseif code[pc] == "getarray" then
             local array = stack[top - 1]
-            if type(array) ~= "table" then
-                array = stack[top - 2]
-            end
+            if type(array) ~= "table" then array = stack[top - 2] end
 
             local index = stack[top]
             if index > array.size then
@@ -168,7 +153,6 @@ function build.run(code, mem, stack, top)
             local array = stack[top - 2]
             local index = stack[top - 1]
             local value = stack[top]
-
 
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
@@ -194,10 +178,9 @@ function build.run(code, mem, stack, top)
             end
         elseif code[pc] == "jmpNZP" then
             pc = pc + 1
-            if stack[top] == 0 then
-                top = top - 1
-            end
-        else error("unknow instruction: " .. code[pc])
+            if stack[top] == 0 then top = top - 1 end
+        else
+            error("unknow instruction: " .. code[pc])
         end
         pc = pc + 1
     end

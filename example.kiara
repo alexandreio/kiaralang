@@ -1,8 +1,15 @@
-function foo(a, b, c=20) {
-    @ (c);
-    return c
+function fa(b, a=2) {
+    @(a);
+    return a;
 }
 
+function ab(a, b) {
+    var res = fa(0) + 5;
+    @ (res);
+    return res;
+}
+
+
 function main () {
-    return foo(1, 0)
+    return ab(0, 0);
 }

@@ -39,7 +39,8 @@ function build.run(code, mem, stack, top)
         if code[pc] == "ret" then
             local n = code[pc + 1]    -- number of active local variables
             stack[top - n] = stack[top]
-            return top - n
+            top = top - n
+            return top
         elseif code[pc] == "call" then
             pc = pc + 1
             local code = code[pc]
@@ -47,7 +48,7 @@ function build.run(code, mem, stack, top)
         elseif code[pc] == "print" then
             if type(stack[top]) == "table" then
                 local arr = stack[top]
-                
+
                 io.write("[")
                 for i=1, arr.size do
                     if arr[i] == nil then
@@ -60,12 +61,12 @@ function build.run(code, mem, stack, top)
                     end
                 end
                 io.write("]\n")
-                
+
 
             else
                 print(stack[top])
             end
-            
+
 
             top = top - 1
         elseif code[pc] == "push" then
@@ -140,12 +141,12 @@ function build.run(code, mem, stack, top)
             stack[top] = {size=size}
         elseif code[pc] == "multnewarray" then
             local lvls = stack[top]
-            
+
             local nd = {}
             for i = 1, lvls do
                 nd[i] = stack[i]
             end
-            
+
             local multarr = ndarray(nd)
             print(">>>" .. lvls)
             stack[top] = multarr
@@ -155,19 +156,19 @@ function build.run(code, mem, stack, top)
             if type(array) ~= "table" then
                 array = stack[top - 2]
             end
-            
+
             local index = stack[top]
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)
             end
-            
+
             stack[top - 1] = array[index]
             top = top - 1
         elseif code[pc] == "setarray" then
             local array = stack[top - 2]
             local index = stack[top - 1]
             local value = stack[top]
-    
+
 
             if index > array.size then
                 error("index out of range. max array size: " .. array.size)

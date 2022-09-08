@@ -12,10 +12,10 @@ local ops = {
     [">="] = "big_eq",
     ["<="] = "sml_eql",
     ["=="] = "equal",
-    ["!="] = "not_equal",
+    ["!="] = "not_equal"
 }
 
-local Compiler = { funcs = {}, vars = {}, nvars = 0, locals = {} }
+local Compiler = {funcs = {}, vars = {}, nvars = 0, locals = {}}
 
 function Compiler:addCode(op)
     local code = self.code
@@ -37,32 +37,26 @@ function Compiler:var2num(id)
     return num
 end
 
-function Compiler:currentPosition()
-    return #self.code
-end
+function Compiler:currentPosition() return #self.code end
 
 function Compiler:findLocal(name)
-    local loc = self.locals
-    for i = #loc, 1, -1 do
 
-        if name == loc[i] then
-            return i
-        end
-    end
+    local loc = self.locals
+    for i = #loc, 1, -1 do if name == loc[i] then return i end end
 
     local params = self.params
+    local defaultParams = self.default_params
+    local lenDefaultParams = 0
+    if #defaultParams == 2 then
+        lenDefaultParams = 1
+    end
     for i = 1, #params do
         if name == params[i] then
-            return -(#params - i)
+            return -((#params + lenDefaultParams) - i)
         end
     end
-
-    params = self.default_params
-    -- print("...." .. #params)
-        for i = 1, #params do
-        if name == params[i] then
-            return -(#params - 2)
-        end
+    if #defaultParams == 2 and defaultParams[1] == name then
+        return 0
     end
 
 
@@ -80,41 +74,33 @@ function Compiler:codeJmp(op)
     return self:currentPosition()
 end
 
-function Compiler:fixJmp2here(jmp)
-    self.code[jmp] = self:currentPosition()
-end
+function Compiler:fixJmp2here(jmp) self.code[jmp] = self:currentPosition() end
 
 function Compiler:codeCall(ast)
     local func = self.funcs[ast.fname]
 
-    if not func then
-        error("undefined function " .. ast.fname)
-    end
+    if not func then error("undefined function " .. ast.fname) end
 
     local args = ast.args
 
-    if func.params ~= nil and (#func.params ~= #args) then
+    local totalParams = #func.params + func.defaultParamsLen
+    local rightNumberOfArgs = (totalParams == #args or totalParams == #args + 1)
+
+    if func.params ~= nil and not rightNumberOfArgs then
         error("wrong number of arguments to " .. ast.fname)
     end
 
     if func.code ~= nil then
         for i = 1, #args do
+            -- print("xxx", pt.pt(args[i]))
             self:codeExp(args[i])
         end
 
-        local default_params = func.default_params
-        if #default_params == 2 then
-            self:codeExp(default_params[2])
-            self.default_params = default_params[2]
+        if func.defaultParamsLen and (#args ~= totalParams)then
+            -- print("entrouuu")
+            self:codeExp(func.default_params[2])
+            self.default_params = func.default_params[2]
         end
-
-        -- print("----------------------------")
-        -- print(pt.pt(func.default_params[2].val))
-        -- for i = 2, #func.default_params, 2 do
-        --     print(#func.default_params[i])
-        -- end
-        -- -- print(pt.pt())
-        -- print("***********************")
 
         self:addCode("call")
         self:addCode(func.code)
@@ -137,6 +123,7 @@ function Compiler:codeExp(ast)
         self:codeCall(ast)
     elseif ast.tag == "variable" then
         local idx = self:findLocal(ast.var)
+        -- print("idx", idx)
         if idx then
             self:addCode("loadL")
             self:addCode(idx)
@@ -162,9 +149,7 @@ function Compiler:codeExp(ast)
         self:codeExp(ast.size)
         self:addCode("newarray")
     elseif ast.tag == "multnew" then
-        for i = 1, #ast.lvls do
-            self:codeExp(ast.lvls[i])
-        end
+        for i = 1, #ast.lvls do self:codeExp(ast.lvls[i]) end
         self:addCode("push")
         self:addCode(#ast.lvls)
         self:addCode("multnewarray")
@@ -172,7 +157,8 @@ function Compiler:codeExp(ast)
         self:codeExp(ast.e1)
         self:codeExp(ast.e2)
         self:addCode(ops[ast.op])
-    else error("invalid tree")
+    else
+        error("invalid tree")
     end
 end
 
@@ -194,19 +180,18 @@ function Compiler:codeAssgn(ast)
         self:codeExp(lhs.index)
         self:codeExp(ast.exp)
         self:addCode("setarray")
-    else error("unknow tag")
+    else
+        error("unknow tag")
     end
 end
 
-function Compiler:codeBlock (ast)
+function Compiler:codeBlock(ast)
     local oldLevel = #self.locals
     self:codeStat(ast.body)
 
     local diff = #self.locals - oldLevel
     if diff > 0 then
-        for _ = 1, diff do
-            table.remove(self.locals)
-        end
+        for _ = 1, diff do table.remove(self.locals) end
         self:addCode("pop")
         self:addCode(diff)
     end
@@ -223,10 +208,7 @@ function Compiler:codeStat(ast)
             end
         end
 
-
-        if ast.init == nil then
-            ast.init = {tag = "number", val = 0}
-        end
+        if ast.init == nil then ast.init = {tag = "number", val = 0} end
 
         self:codeExp(ast.init)
         self.locals[#self.locals + 1] = ast.name
@@ -243,11 +225,7 @@ function Compiler:codeStat(ast)
         self:codeExp(ast.exp)
         self:addCode("ret")
 
-        default_len = 0
-        if #self.default_params > 0 then
-            default_len = 1
-        end
-        self:addCode(#self.locals + #self.params + default_len)
+        self:addCode(#self.locals + #self.params + self.defaultParamsLen)
     elseif ast.tag == "print" then
         self:codeExp(ast.exp)
         self:addCode("print")
@@ -271,7 +249,8 @@ function Compiler:codeStat(ast)
             self:codeStat(ast.el)
             self:fixJmp2here(jmp2)
         end
-    else error("invalid tree")
+    else
+        error("invalid tree")
     end
 end
 
@@ -282,13 +261,13 @@ function Compiler:codeFunction(ast)
         error("function '" .. ast.name .. "' already declared")
     end
 
-
     local params = {}
     for i = 1, #ast.params do
         local cur_param = ast.params[i]
         if params[cur_param] ~= nil then
             error("param " .. cur_param .. " already declared")
-        else params[cur_param] = true
+        else
+            params[cur_param] = true
 
         end
     end
@@ -297,39 +276,45 @@ function Compiler:codeFunction(ast)
         error("main function must have no parameters")
     end
 
-    self.funcs[ast.name] = {foward = true}
+    self.funcs[ast.name] = {foward = true, params={}, defaultParamsLen=0}
+
+    if #ast.default > 2 then
+        error("function " .. ast.name .. " can have only one default argument")
+    end
+
+    local defaultParamsLen = (#ast.default == 2) and 1 or 0
 
     if ast.body then
-        self.funcs[ast.name] = {code = code, foward = nil, params=ast.params, default_params=ast.default}
+        self.funcs[ast.name] = {
+            code = code,
+            foward = nil,
+            params = ast.params,
+            default_params = ast.default,
+            defaultParamsLen = defaultParamsLen
+        }
         self.code = code
         self.params = ast.params
-        self.default_params=ast.default
+        self.default_params = ast.default
+        self.defaultParamsLen = defaultParamsLen
+
+
+
         self:codeStat(ast.body)
         self:addCode("push")
         self:addCode(0)
         self:addCode("ret")
-        default_len = 0
-        if #self.default_params > 0 then
-            default_len = 1
-        end
-        self:addCode(#self.locals + #self.params + default_len)
+
+        self:addCode(#self.locals + #self.params + defaultParamsLen)
     end
 end
 
-
 function Compiler:compile(ast)
-    for i = 1, #ast do
-        self:codeFunction(ast[i])
-    end
+    for i = 1, #ast do self:codeFunction(ast[i]) end
 
     local main = self.funcs["main"]
 
-    if not main then
-        error("no function 'main'")
-    end
+    if not main then error("no function 'main'") end
 
-    -- print(">>>>")
-    -- print(pt.pt(main.code))
     return main.code
 end
 

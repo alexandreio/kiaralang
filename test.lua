@@ -494,11 +494,46 @@ assert_code([[
     function foo(a, b, c=20) {
         return c
     }
-    
+
     function main () {
         return foo(1, 0)
     }
 ]], 20)
+
+
+-- FINAL PROJECT: Default Arguments
+assert_code([[
+    function fa(b, a=2) {
+        return a;
+    }
+
+    function ab(a, b) {
+        var res = fa(0) + 5;
+        return res;
+    }
+
+    function main () {
+        return ab(0, 0);
+    }
+
+]], 7)
+
+
+assert_code([[
+    function fa(b, a=2) {
+        return a;
+    }
+
+    function ab(a, b) {
+        var res = fa(0, b) + 5;
+        return res;
+    }
+
+    function main () {
+        return ab(0, 5);
+    }
+
+]], 10)
 
 -- assert_stat("1 and 0", 0)
 

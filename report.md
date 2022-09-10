@@ -7,7 +7,7 @@ runs it in a stack machine. All memory management is handled it by Lua at this p
 
 Kiara still is a simple language, it doesn't support strings or modules. All program must be contained in a simple file with an extension .kiara.
 
-For a code by valid, it **must** contain a `main` function without any argument. This is our start point.
+For a code be valid, it **must** contain a `main` function without any argument. This is our start point.
 
 
 ## 2 - Basic Concepts

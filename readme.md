@@ -13,17 +13,6 @@ Kiara is a simple language created for [Building a Programming Language](https:/
  - LPeg `luarocks install lpeg`
 
 ### Struct
-├── kiara
-│   ├── backend
-│   │   ├── build.lua
-│   │   └──compiler.lua
-│   ├── frontend
-│   │   ├── debug.lua
-│   │   ├── grammar.lua
-│   │   └── parser.lua
-├── interpreter.lua
-└── test.lua
-
 - [kiara\interpreter.lua](kiara\interpreter.lua): The start point of the language. By default it will print the AST and the code for the program that you pass. If you want to not display those info you need to edit `run(params, true)` to `run(params, false)`
 - [kiara\parser.lua](kiara\parser.lua): Responsible to parser the output of the `kiara\grammar.lua`
 - [kiara\debug.lua](kiara\debug.lua): A helper function to help us to debug the `kiara\grammar.lua`

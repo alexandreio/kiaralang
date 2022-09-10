@@ -1,15 +1,8 @@
-function fa(b, a=2) {
-    @(a);
-    return a;
-}
+function main() {
+    @ 1 + 1;
+    @ (1 > 0);
 
-function ab(a, b) {
-    var res = fa(0) + 5;
-    @ (res);
-    return res;
-}
-
-
-function main () {
-    return ab(0, 0);
+    var a = new[10];
+    a[5] = 50;
+    @ a[5];
 }

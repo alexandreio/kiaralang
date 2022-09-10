@@ -378,6 +378,21 @@ assert_stat("5 or 10", 5)
 assert_stat("10 or 5", 10)
 assert_stat("10 or 10", 10)
 
+-- while test
+assert_code([[
+    function main() {
+        var n = 0;
+        var i = 0;
+
+        while (i < 10) {
+            n = n + 1;
+            i = i + 1;
+        };
+
+        return n;
+    }
+]], 10)
+
 -- wrong number of arguments
 assert_code([[
     function foo(bar) {
@@ -534,6 +549,21 @@ assert_code([[
     }
 
 ]], 10)
+
+assert_code([[
+    function foo(a) {
+        return a + 1;
+    }
+
+    function bar(b) {
+        return b + 1;
+    }
+
+    function main () {
+        return foo(bar(1));
+    }
+
+]], 3)
 
 -- assert_stat("1 and 0", 0)
 
